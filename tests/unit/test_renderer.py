@@ -13,6 +13,7 @@ class DummyPage:
 
     async def goto(self, url, timeout=None, wait_until=None):
         await asyncio.sleep(0)
+
         class Resp:
             status = 200
 

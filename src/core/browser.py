@@ -1,4 +1,5 @@
 """Playwright browser session management."""
+
 import asyncio
 from typing import Optional
 from contextlib import asynccontextmanager
@@ -12,16 +13,16 @@ logger = get_logger(__name__)
 
 class BrowserSession:
     """Singleton browser session manager using Playwright."""
-    
+
     _instance: Optional["BrowserSession"] = None
     _lock = asyncio.Lock()
-    
+
     def __init__(self):
         """Initialize browser session (use get_instance instead)."""
         self._playwright: Optional[Playwright] = None
         self._browser: Optional[Browser] = None
         self._initialized = False
-    
+
     @classmethod
     async def get_instance(cls) -> "BrowserSession":
         """Get singleton instance (thread-safe)."""
@@ -31,12 +32,12 @@ class BrowserSession:
                     cls._instance = cls()
                     await cls._instance.initialize()
         return cls._instance
-    
+
     async def initialize(self) -> None:
         """Initialize Playwright and launch browser."""
         if self._initialized:
             return
-        
+
         try:
             logger.info("Initializing Playwright browser session")
             self._playwright = await async_playwright().start()
@@ -46,19 +47,19 @@ class BrowserSession:
                     "--disable-blink-features=AutomationControlled",
                     "--disable-dev-shm-usage",
                     "--no-sandbox",
-                ]
+                ],
             )
             self._initialized = True
             logger.info("Browser session initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize browser: {e}")
             raise BrowserError(f"Failed to initialize browser: {e}")
-    
+
     async def shutdown(self) -> None:
         """Shutdown browser and Playwright."""
         if not self._initialized:
             return
-        
+
         try:
             logger.info("Shutting down browser session")
             if self._browser:
@@ -69,14 +70,14 @@ class BrowserSession:
             logger.info("Browser session shutdown complete")
         except Exception as e:
             logger.error(f"Error during browser shutdown: {e}")
-    
+
     @asynccontextmanager
     async def new_context(self, user_agent: Optional[str] = None):
         """Create a new browser context (isolated session)."""
         if not self._initialized or not self._browser:
             logger.error("Browser not initialized")
             raise BrowserError("Browser not initialized")
-        
+
         context: Optional[BrowserContext] = None
         try:
             logger.debug(f"Creating new browser context (user_agent={bool(user_agent)})")
@@ -84,7 +85,7 @@ class BrowserSession:
             if user_agent:
                 context_options["user_agent"] = user_agent
                 logger.debug(f"User agent set in context")
-            
+
             context = await self._browser.new_context(**context_options)
             logger.debug("Browser context created successfully")
             yield context
@@ -95,7 +96,7 @@ class BrowserSession:
                     logger.debug("Browser context closed")
                 except Exception as e:
                     logger.error(f"Error closing context: {e}", exc_info=True)
-    
+
     @asynccontextmanager
     async def new_page(self, user_agent: Optional[str] = None):
         """Create a new page in a new context."""
@@ -113,7 +114,7 @@ class BrowserSession:
                         logger.debug("Browser page closed")
                     except Exception as e:
                         logger.error(f"Error closing page: {e}", exc_info=True)
-    
+
     def is_ready(self) -> bool:
         """Check if browser is ready."""
         return self._initialized and self._browser is not None

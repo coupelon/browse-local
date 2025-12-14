@@ -53,6 +53,7 @@ async def test_generic_error_maps_to_500():
     scope = {"type": "http", "method": "GET", "path": "/raise-generic", "headers": []}
     request = Request(scope)
     from src.api.errors import generic_error_handler
+
     response = await generic_error_handler(request, Exception("boom"))
     assert response.status_code == 500
     data = response.body

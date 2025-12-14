@@ -9,7 +9,7 @@ async def test_iframe_contains_selector(test_client: AsyncClient):
     params = {
         "url": url,
         "selector": "#getdiploma",
-        "iframe": "iframe[src*=\"default.asp\"]",
+        "iframe": 'iframe[src*="default.asp"]',
     }
     resp = await test_client.get("/v1/html", params=params)
 

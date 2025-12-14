@@ -9,15 +9,15 @@ docker run -d -p 8000:8000 --name browse-local-test browse-local:latest
 sleep 5
 
 echo ""
-echo "Testing selector error handling with seloger.com..."
-echo "=================================================="
+echo "Testing selector error handling with dynamic web page..."
+echo "========================================================"
 
 # Test with invalid selector (should return HTML + selector_error metadata)
 response=$(curl -s -X POST http://localhost:8000/v1/html \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://www.seloger.com/classified-search?distributionTypes=Buy,Buy_Auction,Compulsory_Auction&estateTypes=House,Apartment&locations=AD08FR26357&order=DateDesc",
-    "selector": "a[title][data-testid]",
+    "url": "https://www.w3schools.com/html/",
+    "selector": "article[data-id-nonexistent]",
     "timeout": 15000
   }')
 

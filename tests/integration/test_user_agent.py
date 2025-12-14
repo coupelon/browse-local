@@ -11,7 +11,10 @@ class TestUserAgentIntegration:
     async def test_mobile_user_agent(self, test_client: AsyncClient):
         """Test with mobile (iPhone) user agent."""
         mobile_ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15"
-        response = await test_client.get(f"/v1/html?url=https://example.com&userAgent={mobile_ua}")
+        response = await test_client.post(
+            "/v1/html",
+            json={"url": "https://example.com", "headers": {"User-Agent": mobile_ua}}
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -24,10 +27,16 @@ class TestUserAgentIntegration:
         """Test that custom and default user agents both work."""
         # Request with custom UA
         custom_ua = "CustomBot/2.0"
-        response_custom = await test_client.get(f"/v1/html?url=https://example.com&userAgent={custom_ua}")
+        response_custom = await test_client.post(
+            "/v1/html",
+            json={"url": "https://example.com", "headers": {"User-Agent": custom_ua}}
+        )
 
         # Request without custom UA (default)
-        response_default = await test_client.get("/v1/html?url=https://example.com")
+        response_default = await test_client.post(
+            "/v1/html",
+            json={"url": "https://example.com"}
+        )
 
         # Both should succeed
         assert response_custom.status_code == 200

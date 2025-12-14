@@ -1,7 +1,7 @@
 # Selector Error Handling - Phase 0 Iteration (December 14, 2025)
 
 ## Summary
-Enhanced the POST API to return HTML content even when CSS selectors fail to match or timeout, enabling debugging of complex web pages (e.g., seloger.com) where selectors might fail but the HTML structure needs analysis.
+Enhanced the POST API to return HTML content even when CSS selectors fail to match or timeout, enabling debugging of complex web pages where selectors might fail but the HTML structure needs analysis for refinement.
 
 ## Changes Made
 
@@ -76,15 +76,15 @@ After:  200 OK with HTML content
 }
 ```
 
-## Real-World Use Case: seloger.com
+## Real-World Use Case: Dynamic Web Content
 
-Example from user's testing with complex CSS selectors:
+Example from testing with complex CSS selectors:
 ```bash
 curl -X POST http://localhost:8000/v1/html \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://www.seloger.com/classified-search?...",
-    "selector": "a[title][data-testid]",
+    "url": "https://www.w3schools.com/html/",
+    "selector": "article[data-id]",
     "timeout": 15000
   }'
 ```
@@ -116,7 +116,7 @@ Successfully built 9d773616f644
 Successfully tagged browse-local:latest
 ```
 
-Container test with seloger.com:
+Container test with dynamic web pages:
 ```
 ✅ SUCCESS: HTML content returned with selector error metadata
 ```

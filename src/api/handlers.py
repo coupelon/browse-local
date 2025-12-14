@@ -1,9 +1,7 @@
 """Request handlers for API endpoints."""
 
 import uuid
-from typing import Optional, Dict, Any
-
-from fastapi import HTTPException, status
+from typing import Dict, Any
 
 from src.core.renderer import PageRenderer
 from src.core.browser import BrowserSession

@@ -185,19 +185,19 @@ Content-Type: application/json
 
 ## Real-World Use Cases
 
-### Example: seloger.com scraping
+### Example: Dynamic web page scraping
 ```bash
 curl -X POST http://localhost:8000/v1/html \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://www.seloger.com/...",
+    "url": "https://www.w3schools.com/html/",
     "waitFor": "none",
-    "selector": "#app",
+    "selector": ".examples",
     "headers": {
       "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36",
       "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
       "Cookie": "session_id=...; preferences=...",
-      "Referer": "https://www.seloger.com/",
+      "Referer": "https://www.w3schools.com/",
       "X-Requested-With": "XMLHttpRequest"
     },
     "timeout": 30000

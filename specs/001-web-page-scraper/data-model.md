@@ -39,7 +39,7 @@ This document defines the data entities, their relationships, and validation rul
    - Localhost URLs (e.g., `http://localhost:3000`) are allowed
    - Maximum length: 2048 characters
    - Examples:
-     - ✅ `https://www.seloger.com/classified-search?...`
+     - ✅ `https://www.w3schools.com/html/`
      - ✅ `https://example.com/path?query=value#fragment`
      - ✅ `http://localhost:8000`
      - ❌ `not-a-url` (error: INVALID_URL)
@@ -109,7 +109,7 @@ This document defines the data entities, their relationships, and validation rul
 **With Network Idle**:
 ```json
 {
-  "url": "https://www.seloger.com/classified-search",
+  "url": "https://www.w3schools.com/html/",
   "waitFor": "network-idle",
   "timeout": 15000
 }
@@ -118,8 +118,8 @@ This document defines the data entities, their relationships, and validation rul
 **With CSS Selector**:
 ```json
 {
-  "url": "https://www.seloger.com/classified-search",
-  "selector": "a[title][data-testid]",
+  "url": "https://www.w3schools.com/html/",
+  "selector": ".examples",
   "timeout": 20000
 }
 ```
@@ -127,7 +127,7 @@ This document defines the data entities, their relationships, and validation rul
 **With Custom Headers**:
 ```json
 {
-  "url": "https://www.seloger.com/classified-search",
+  "url": "https://www.w3schools.com/html/",
   "waitFor": "network-idle",
   "headers": {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0",

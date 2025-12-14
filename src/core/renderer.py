@@ -4,7 +4,7 @@ import time
 from typing import Optional, Tuple, Dict, Any
 from datetime import datetime
 
-from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 from src.core.browser import BrowserSession
 from src.core.logger import get_logger
 from src.api.errors import (

@@ -5,7 +5,7 @@
 
 ## Session Overview
 
-This session focused on enhancing error handling for the POST API to return HTML content even when CSS selectors fail, enabling debugging of complex real-world web scraping scenarios (e.g., seloger.com). Additionally, the GET endpoint was removed; the API is now POST-only.
+This session focused on enhancing error handling for the POST API to return HTML content even when CSS selectors fail, enabling debugging of complex real-world web scraping scenarios. Additionally, the GET endpoint was removed; the API is now POST-only.
 
 ## Completed Work
 
@@ -23,7 +23,7 @@ This session focused on enhancing error handling for the POST API to return HTML
 ### 3. Documentation
 - ✅ Updated README.md for POST-only and 404 error format
 - ✅ Updated SELECTOR_ERROR_HANDLING.md to reflect new behavior
-- ✅ Added real-world scraping example (seloger.com use case)
+- ✅ Added real-world scraping example (complex selectors use case)
 - ✅ Documented breaking changes and migration notes
 
 ### 4. Docker Validation
@@ -98,7 +98,7 @@ Total: 50 tests, 100% pass rate
 5. **README.md**
    - Added "Error Handling & Debugging" section
    - Documented selector_error and partial_content fields
-   - Added seloger.com real-world example
+- Added real-world dynamic web scraping example
 
 6. **SELECTOR_ERROR_HANDLING.md** (NEW)
    - Complete technical documentation
@@ -107,13 +107,13 @@ Total: 50 tests, 100% pass rate
 
 ## Real-World Validation
 
-Tested with seloger.com property listing page:
+Tested with complex selectors on dynamic web pages:
 ```bash
 curl -X POST http://localhost:8000/v1/html \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://www.seloger.com/classified-search?...",
-    "selector": "a[title][data-testid]",
+    "url": "https://www.w3schools.com/html/",
+    "selector": ".examples",
     "timeout": 15000
   }'
 ```

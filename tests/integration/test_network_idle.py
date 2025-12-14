@@ -11,7 +11,10 @@ class TestNetworkIdleIntegration:
     async def test_network_idle_detection(self, test_client: AsyncClient):
         """Test network idle wait with a page that loads content."""
         # Use example.com as a simple test (actual delay sites may be flaky)
-        response = await test_client.get("/v1/html?url=https://example.com&waitFor=network-idle&timeout=10000")
+        response = await test_client.post(
+            "/v1/html",
+            json={"url": "https://example.com", "waitFor": "network-idle", "timeout": 10000}
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -28,12 +31,18 @@ class TestNetworkIdleIntegration:
     async def test_network_idle_vs_basic(self, test_client: AsyncClient):
         """Compare network-idle wait vs basic retrieval."""
         # Basic retrieval
-        response_basic = await test_client.get("/v1/html?url=https://example.com")
+        response_basic = await test_client.post(
+            "/v1/html",
+            json={"url": "https://example.com", "waitFor": "none"}
+        )
         assert response_basic.status_code == 200
         data_basic = response_basic.json()
 
         # Network-idle retrieval
-        response_idle = await test_client.get("/v1/html?url=https://example.com&waitFor=network-idle")
+        response_idle = await test_client.post(
+            "/v1/html",
+            json={"url": "https://example.com", "waitFor": "network-idle"}
+        )
         assert response_idle.status_code == 200
         data_idle = response_idle.json()
 

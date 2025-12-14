@@ -31,7 +31,7 @@
   - All dependencies installed correctly
   
 - [x] T006 - Validate Docker image with real URL
-  - Tested with seloger.com property listing page
+  - Tested with dynamic web page
   - Confirmed HTTP 200 response
   - Verified HTML content returned (1626+ bytes)
   - Validated selector_error and partial_content fields
@@ -39,7 +39,7 @@
 - [x] T007 - Update README with error handling documentation
   - Added "Error Handling & Debugging" section
   - Documented selector_error and partial_content fields
-  - Added seloger.com real-world example
+  - Added real-world dynamic web scraping example
   - Documented behavior changes
   
 - [x] T008 - Create comprehensive technical documentation
@@ -86,7 +86,7 @@
 - [x] POST endpoint accepts requests
 - [x] Selector error handling returns HTML
 - [x] Metadata fields included in response
-- [x] real-world URL tested (seloger.com)
+- [x] real-world URL tested (dynamic web pages)
 
 ## Code Quality Checklist
 

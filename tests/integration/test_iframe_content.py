@@ -6,12 +6,13 @@ from httpx import AsyncClient
 async def test_iframe_contains_selector(test_client: AsyncClient):
     """Ensure selector inside iframe is available before content capture."""
     url = "https://www.w3schools.com/html/html_iframe.asp"
-    params = {
+    payload = {
         "url": url,
         "selector": "#getdiploma",
         "iframe": 'iframe[src*="default.asp"]',
+        "waitFor": "none",
     }
-    resp = await test_client.get("/v1/html", params=params)
+    resp = await test_client.post("/v1/html", json=payload)
 
     assert resp.status_code == 200
     body = resp.json()

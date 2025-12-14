@@ -84,7 +84,7 @@ class BrowserSession:
             context_options = {}
             if user_agent:
                 context_options["user_agent"] = user_agent
-                logger.debug(f"User agent set in context")
+                logger.debug("User agent set in context")
 
             context = await self._browser.new_context(**context_options)
             logger.debug("Browser context created successfully")

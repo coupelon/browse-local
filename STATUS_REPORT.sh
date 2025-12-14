@@ -56,9 +56,9 @@ Benefits:
   Build:   docker build --no-cache -t browse-local:latest .
   Status:  ✅ Built successfully
 
-  Real-world Test (seloger.com):
-    • URL: https://www.seloger.com/classified-search?...
-    • Selector: a[title][data-testid]
+  Real-world Test (Dynamic Web Pages):
+    • URL: https://www.w3schools.com/html/
+    • Selector: .examples
     • Result: HTTP 200 OK
     • Content: 1626+ bytes
     • Metadata: selector_error + partial_content flags
@@ -117,7 +117,7 @@ Benefits:
   • No breaking changes to successful selector matching
   • Backward compatible GET endpoint behavior updated
   • Clear, actionable error messages for debugging
-  • Real-world validation with seloger.com
+  • Real-world validation with dynamic web pages
   • Comprehensive test coverage with high quality assurance
   • Production-ready Docker image
 

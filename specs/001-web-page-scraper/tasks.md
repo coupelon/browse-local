@@ -188,7 +188,7 @@ Single project structure:
 
 ### Contract Tests for US2 (OPTIONAL - tests written FIRST)
 
-- [ ] T029 [P] [US2] Create `tests/contract/test_network_idle.py` with:
+- [X] T029 [P] [US2] Create `tests/contract/test_network_idle.py` with:
   - test_wait_for_network_idle: GET /v1/html?url=...&waitFor=network-idle waits for network
   - test_invalid_wait_for_value: GET /v1/html?url=...&waitFor=invalid returns 400
   - test_network_idle_timeout: After timeout, returns 200 with warning in metadata
@@ -196,28 +196,28 @@ Single project structure:
 
 ### Implementation for US2
 
-- [ ] T030 [US2] Update `src/core/renderer.py` to support waitFor="network-idle":
+- [X] T030 [US2] Update `src/core/renderer.py` to support waitFor="network-idle":
   - Add wait_condition parameter to render() method
   - Use playwright: page.wait_for_load_state("networkidle", timeout=...) when waitFor="network-idle"
   - Catch TimeoutError and return current DOM state with warning
   - Track actual wait time and include in metadata
 
-- [ ] T031 [P] [US2] Update `src/api/handlers.py`:
+- [X] T031 [P] [US2] Update `src/api/handlers.py`:
   - Add logic to handle waitFor="network-idle" parameter
   - Pass wait_condition to renderer.render()
   - Add warning to metadata if timeout occurred
 
-- [ ] T032 [P] [US2] Update `tests/contract/test_network_idle.py` to test timeout behavior:
+- [X] T032 [P] [US2] Update `tests/contract/test_network_idle.py` to test timeout behavior:
   - test_network_idle_with_short_timeout: timeout=2000 on slow page returns partial content
 
-- [ ] T033 [US2] Create `tests/integration/test_network_idle.py` with:
+- [X] T033 [US2] Create `tests/integration/test_network_idle.py` with:
   - test_network_idle_detection: Fetch httpbin.org/delay/2 with waitFor=network-idle
   - Verify response time is >= 2 seconds
   - Verify renderTime in metadata reflects actual wait time
 
-- [ ] T034 [US2] Run contract tests (pytest tests/contract/test_network_idle.py) - should pass ✅
+- [X] T034 [US2] Run contract tests (pytest tests/contract/test_network_idle.py) - should pass ✅
 
-- [ ] T035 [US2] Run integration tests (pytest tests/integration/test_network_idle.py) - should pass ✅
+- [X] T035 [US2] Run integration tests (pytest tests/integration/test_network_idle.py) - should pass ✅
 
 **Checkpoint**: User Story 2 complete. Network idle detection works independently from US1.
 

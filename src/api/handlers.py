@@ -1,8 +1,8 @@
 """Request handlers for API endpoints."""
 import uuid
-from typing import Optional
+from typing import Optional, Literal
 
-from fastapi import Query
+from fastapi import Query, HTTPException, status
 from pydantic import HttpUrl
 
 from src.core.renderer import PageRenderer
@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 
 async def get_html(
     url: str = Query(..., description="Target URL to retrieve HTML from"),
-    waitFor: Optional[str] = Query(None, description="Wait strategy: 'none' or 'network-idle'"),
+    waitFor: Optional[Literal["none", "network-idle"]] = Query(None, description="Wait strategy: 'none' or 'network-idle'"),
     selector: Optional[str] = Query(None, description="CSS selector to wait for"),
     userAgent: Optional[str] = Query(None, description="Custom User-Agent header"),
     timeout: Optional[int] = Query(30000, ge=1000, le=120000, description="Timeout in milliseconds")

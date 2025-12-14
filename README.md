@@ -364,7 +364,7 @@ browse-local/
 - Basic retrieval: < 2s (p95)
 - Network idle: < 10s (p95)
 - Concurrent requests: ≥10 simultaneous
-- Code coverage: ≥80%
+- Code coverage: ≥75%
 
 ## Troubleshooting
 

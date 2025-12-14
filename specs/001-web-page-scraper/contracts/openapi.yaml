@@ -18,166 +18,40 @@ servers:
 
 paths:
   /v1/html:
-    get:
-      summary: Retrieve HTML content from a web page
+    post:
+      summary: Retrieve HTML content from a web page (POST)
       description: |
-        Fetches and renders a web page, returning the HTML content.
+        Renders a web page and returns the HTML content.
         Supports waiting for network idle or CSS selector matching before returning.
-      operationId: getHtml
-      parameters:
-        - name: url
-          in: query
-          description: |
-            Target URL to fetch. Must be a valid HTTP or HTTPS URL.
-            Examples:
-            - https://example.com
-            - https://example.com/path?query=value
-          required: true
-          schema:
-            type: string
-            format: uri
-            minLength: 10
-            maxLength: 2048
-          example: https://example.com
-
-        - name: waitFor
-          in: query
-          description: |
-            Rendering wait strategy:
-            - `none`: Return immediately after initial page load (default)
-            - `network-idle`: Wait until network activity ceases (all resources loaded)
-            - `selector`: Wait for a CSS selector to match in the DOM
-          required: false
-          schema:
-            type: string
-            enum:
-              - none
-              - network-idle
-              - selector
-            default: none
-          example: network-idle
-
-        - name: selector
-          in: query
-          description: |
-            CSS selector to wait for. Required if `waitFor=selector`.
-            Ignored if `waitFor` is `none` or `network-idle`.
-            Examples:
-            - .article-content
-            - div#main > p:first-child
-            - [data-test="submit-button"]
-          required: false
-          schema:
-            type: string
-            minLength: 1
-            maxLength: 500
-          example: .article-content
-
-        - name: userAgent
-          in: query
-          description: |
-            Custom browser user agent string.
-            If omitted, uses default Chrome desktop agent.
-            Useful for testing mobile rendering or device-specific content.
-          required: false
-          schema:
-            type: string
-            minLength: 1
-            maxLength: 1000
-          example: Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X)
-
-        - name: timeout
-          in: query
-          description: |
-            Maximum time to wait for page rendering (milliseconds).
-            Range: 1000-120000 (1-120 seconds).
-            Default: 30000 (30 seconds).
-            If timeout is reached before wait condition is met, returns current page state.
-          required: false
-          schema:
-            type: integer
-            minimum: 1000
-            maximum: 120000
-            default: 30000
-          example: 30000
-
+        Allows passing custom HTTP headers.
+      operationId: postHtml
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HtmlRequest'
       responses:
         '200':
-          description: |
-            Successfully retrieved page content.
-            Note: Returns 200 even if timeout was reached; check metadata.warnings.
+          description: Successfully retrieved page content
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HtmlResponse'
 
-        '400':
-          description: Bad request (validation error)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                invalidUrl:
-                  summary: Invalid URL format
-                  value:
-                    code: INVALID_URL
-                    message: URL must be a valid HTTP or HTTPS URL
-                    details:
-                      url: not-a-url
-                      reason: missing scheme (http or https)
-                    timestamp: "2025-12-14T10:30:00Z"
-                selectorRequired:
-                  summary: Selector required when waitFor=selector
-                  value:
-                    code: SELECTOR_REQUIRED
-                    message: selector parameter required when waitFor=selector
-                    details:
-                      parameter: selector
-                      received: null
-                    timestamp: "2025-12-14T10:30:00Z"
-
         '404':
-          description: Target URL not found
+          description: Selector not found within timeout — error response includes HTML for debugging
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: NOT_FOUND
-                message: Target URL returned 404 Not Found
-                details:
-                  url: https://example.com/missing
-                  targetStatusCode: 404
-                timestamp: "2025-12-14T10:30:00Z"
+                $ref: '#/components/schemas/HtmlErrorDetailResponse'
 
-        '408':
-          description: Request timeout
+        '422':
+          description: Unprocessable entity (validation error)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: REQUEST_TIMEOUT
-                message: Request timeout - wait condition not met within 30000ms
-                details:
-                  timeout: 30000
-                  waitCondition: network-idle
-                timestamp: "2025-12-14T10:30:00Z"
-
-        '413':
-          description: Payload too large
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: PAYLOAD_TOO_LARGE
-                message: Request payload exceeds maximum size
-                details:
-                  size: 12000
-                  max: 10000
-                timestamp: "2025-12-14T10:30:00Z"
 
         '500':
           description: Internal server error
@@ -185,12 +59,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: INTERNAL_SERVER_ERROR
-                message: Unexpected server error
-                details:
-                  requestId: 550e8400-e29b-41d4-a716-446655440000
-                timestamp: "2025-12-14T10:30:00Z"
 
       tags:
         - HTML Retrieval
@@ -214,6 +82,44 @@ paths:
 
 components:
   schemas:
+    HtmlRequest:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          format: uri
+          minLength: 10
+          maxLength: 2048
+          description: Target URL to fetch
+          example: https://example.com
+        waitFor:
+          type: string
+          enum: [none, network-idle, selector]
+          default: none
+          description: Rendering wait strategy
+        selector:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: CSS selector to wait for (required if waitFor=selector)
+          example: .article-content
+        iframe:
+          type: string
+          description: Optional iframe selector when waiting inside iframe
+        headers:
+          type: object
+          description: Custom HTTP headers to send with the request
+          additionalProperties:
+            type: string
+        timeout:
+          type: integer
+          minimum: 1000
+          maximum: 120000
+          default: 30000
+          description: Timeout in milliseconds
+
     HtmlResponse:
       type: object
       required:
@@ -241,8 +147,8 @@ components:
       type: object
       required:
         - url
-        - statusCode
-        - renderTime
+        - status_code
+        - duration_ms
         - timestamp
       properties:
         url:
@@ -250,15 +156,14 @@ components:
           format: uri
           description: Final URL after following redirects
           example: https://example.com
-        statusCode:
+        status_code:
           type: integer
           description: HTTP status code of the target page
           example: 200
-        renderTime:
-          type: number
-          format: double
-          description: Time spent rendering the page (seconds)
-          example: 2.345
+        duration_ms:
+          type: integer
+          description: Time spent rendering the page (milliseconds)
+          example: 2345
         timestamp:
           type: string
           format: date-time
@@ -275,6 +180,35 @@ components:
             - "Page returned non-HTML content type; returned as-is"
           example:
             - "Timeout reached (30s) before network idle; returning partial content"
+        wait_strategy:
+          type: string
+          description: Applied wait strategy
+          example: none
+        selector_error:
+          type: string
+          nullable: true
+          description: Error message when selector was not found
+        partial_content:
+          type: boolean
+          nullable: true
+          description: True if content may be incomplete
+
+    HtmlErrorDetailResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: object
+          required:
+            - content
+            - metadata
+          properties:
+            content:
+              type: string
+              description: Raw HTML content of the page at the time of error
+            metadata:
+              $ref: '#/components/schemas/ResponseMetadata'
 
     ErrorResponse:
       type: object

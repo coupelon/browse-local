@@ -128,7 +128,7 @@ Single project structure:
 
 ### Contract Tests for US1 (OPTIONAL - tests written FIRST)
 
-- [ ] T021 [P] [US1] Create `tests/contract/test_basic_retrieval.py` with:
+- [X] T021 [P] [US1] Create `tests/contract/test_basic_retrieval.py` with:
   - test_get_html_success: GET /v1/html?url=https://example.com returns 200 + HtmlResponse
   - test_get_html_missing_url_param: GET /v1/html (no url) returns 400
   - test_get_html_invalid_url: GET /v1/html?url=not-a-url returns 400 with INVALID_URL code
@@ -137,14 +137,14 @@ Single project structure:
 
 ### Implementation for US1
 
-- [ ] T022 Create `src/core/renderer.py` with:
+- [X] T022 Create `src/core/renderer.py` with:
   - PageRenderer class for handling page fetching and rendering
   - render(url, wait_condition, timeout) async method
   - Default wait_condition=None (no waiting)
   - Returns tuple: (html_content, metadata_dict)
   - Error handling: pass through browser exceptions as custom exceptions
 
-- [ ] T023 Create `src/api/handlers.py` with:
+- [X] T023 Create `src/api/handlers.py` with:
   - get_html(url, waitFor="none", selector=None, userAgent=None, timeout=30000) async handler
   - Parse and validate query parameters using HtmlRequest schema
   - Call renderer.render() with parameters
@@ -152,7 +152,7 @@ Single project structure:
   - Handle exceptions via error handlers (from errors.py)
   - Add request ID to logs
 
-- [ ] T024 Create `src/api/main.py` with:
+- [X] T024 Create `src/api/main.py` with:
   - FastAPI app initialization
   - async lifespan event for browser session startup/shutdown
   - Route registration: GET /v1/html → handlers.get_html
@@ -161,20 +161,20 @@ Single project structure:
   - CORS configuration (if needed)
   - Include OpenAPI documentation reference
 
-- [ ] T025 Create health check handler in `src/api/handlers.py`:
+- [X] T025 Create health check handler in `src/api/handlers.py`:
   - get_health() handler returning HealthResponse
   - Check browser connection status
   - Include Chromium version if available
   - Return status: "healthy", "degraded", or "unhealthy"
 
-- [ ] T026 [P] [US1] Create `tests/integration/test_real_website.py` with:
+- [X] T026 [P] [US1] Create `tests/integration/test_real_website.py` with:
   - test_fetch_example_com: Fetch example.com, verify content contains expected text
   - test_http_and_https: Both http:// and https:// URLs work
   - test_response_metadata_contains_final_url: Metadata URL matches target URL
 
-- [ ] T027 [US1] Run contract tests (pytest tests/contract/test_basic_retrieval.py) - should pass ✅
+- [X] T027 [US1] Run contract tests (pytest tests/contract/test_basic_retrieval.py) - should pass ✅
 
-- [ ] T028 [US1] Run integration tests (pytest tests/integration/test_real_website.py) - should pass ✅
+- [X] T028 [US1] Run integration tests (pytest tests/integration/test_real_website.py) - should pass ✅
 
 **Checkpoint**: User Story 1 complete and independently testable. Basic HTML retrieval works end-to-end.
 

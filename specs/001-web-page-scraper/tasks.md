@@ -67,32 +67,32 @@ Single project structure:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T013 [P] Create `src/core/config.py` with:
+- [X] T013 [P] Create `src/core/config.py` with:
   - Pydantic BaseSettings for configuration management
   - TIMEOUT_MIN, TIMEOUT_MAX, TIMEOUT_DEFAULT from environment
   - LOG_LEVEL, WORKERS configuration
   - Validation for timeout ranges
 
-- [ ] T014 [P] Create `src/core/logger.py` with:
+- [X] T014 [P] Create `src/core/logger.py` with:
   - Structured JSON logging setup
   - Logger initialization with request ID support
   - Log level configuration
   - Function to add request ID to logs context
 
-- [ ] T015 [P] Create `src/api/schemas.py` with Pydantic models:
+- [X] T015 [P] Create `src/api/schemas.py` with Pydantic models:
   - HtmlRequest: url, waitFor, selector, userAgent, timeout (with validators)
   - HtmlResponse: content, metadata
   - ResponseMetadata: url, statusCode, renderTime, timestamp, warnings
   - HealthResponse: status, timestamp, browser dict
   - Validators for URL format, timeout range, CSS selector validation
 
-- [ ] T016 [P] Create `src/api/errors.py` with:
+- [X] T016 [P] Create `src/api/errors.py` with:
   - Custom exception classes for each error code (InvalidUrl, SelectorRequired, etc.)
   - ErrorResponse model
   - FastAPI exception handlers to convert exceptions to HTTP responses with correct status codes
   - Mapping: INVALID_URL→400, NOT_FOUND→404, REQUEST_TIMEOUT→408, PAYLOAD_TOO_LARGE→413, etc.
 
-- [ ] T017 Create `src/core/browser.py` with:
+- [X] T017 Create `src/core/browser.py` with:
   - BrowserSession class for managing Playwright browser lifecycle
   - async_browser() context manager
   - connect() method for initialization (called on app startup)
@@ -100,21 +100,21 @@ Single project structure:
   - get_page() method to create new page instance with timeout configuration
   - Health check method returning browser status
 
-- [ ] T018 Create `src/lib/validators.py` with:
+- [X] T018 Create `src/lib/validators.py` with:
   - validate_url(url: str) → raises InvalidUrl if invalid
   - validate_selector(selector: str) → raises InvalidSelector if invalid CSS
   - validate_timeout(timeout: int) → raises InvalidTimeout if out of range
   - URL regex pattern for HTTP(S) validation
   - CSS selector basic syntax checking (optional regex)
 
-- [ ] T019 [P] Create `tests/conftest.py` with:
+- [X] T019 [P] Create `tests/conftest.py` with:
   - Mock browser fixture for unit tests
   - Mock page fixture with basic properties
   - FastAPI test client fixture
   - Example test URLs (example.com, httpbin.org/delay/2)
   - Cleanup fixtures for resource management
 
-- [ ] T020 [P] Create `tests/__init__.py` (empty marker file)
+- [X] T020 [P] Create `tests/__init__.py` (empty marker file)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

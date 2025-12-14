@@ -213,25 +213,6 @@ When a CSS selector times out or is not found, the API **returns HTTP 200** with
 
 This behavior enables **debugging** of complex web pages where selectors might fail but HTML structure analysis is needed to refine your selector.
 
-#### Example: Scraping Real Estate Site with Complex Selectors
-
-```bash
-# Request with a selector that might not exist immediately
-curl -X POST http://localhost:8000/v1/html \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://www.seloger.com/classified-search",
-    "selector": "a[title][data-testid]",
-    "timeout": 15000,
-    "headers": {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    }
-  }'
-
-# If selector doesn't exist, you still get HTTP 200 with HTML to analyze
-# Check metadata.partial_content flag to detect this situation
-```
-
 ---
 
 ### ⚠️ GET Endpoint (Deprecated)

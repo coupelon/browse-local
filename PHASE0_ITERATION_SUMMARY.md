@@ -1,32 +1,30 @@
 # Browse Local - Phase 0 Completion Summary
 
 **Date**: December 14, 2025  
-**Status**: ✅ **COMPLETE** - All tasks finished, 62 tests passing
+**Status**: ✅ **COMPLETE** - All tasks finished, 50 tests passing
 
 ## Session Overview
 
-This session focused on enhancing error handling for the POST API to return HTML content even when CSS selectors fail, enabling debugging of complex real-world web scraping scenarios (e.g., seloger.com).
+This session focused on enhancing error handling for the POST API to return HTML content even when CSS selectors fail, enabling debugging of complex real-world web scraping scenarios (e.g., seloger.com). Additionally, the GET endpoint was removed; the API is now POST-only.
 
 ## Completed Work
 
 ### 1. Selector Error Handling Enhancement
-- ✅ Modified `src/core/renderer.py` to capture selector errors instead of raising exceptions
-- ✅ Extended `src/api/schemas.py` with `selector_error` and `partial_content` fields
-- ✅ Updated tests to reflect new graceful error behavior
-- ✅ All 60 unit + contract tests passing
-- ✅ All 2 integration tests passing
+- ✅ Modified `src/core/renderer.py` to raise `SelectorNotFoundWithContentError` on selector failure, carrying HTML + metadata
+- ✅ Updated `src/api/handlers.py` to return **HTTP 404** with `detail.content` and `detail.metadata`
+- ✅ Removed GET-only tests; updated contract tests to expect 404 for selector timeouts
+- ✅ All unit, contract, and integration tests passing
 
-### 2. Test Suite Expansion
-- ✅ Created 3 new unit tests for selector error scenarios
-- ✅ Updated 1 contract test for timeout behavior
-- ✅ All tests follow existing patterns and best practices
-- ✅ Test coverage: 62 total (100% success rate)
+### 2. Test Suite Update
+- ✅ Converted GET tests to POST
+- ✅ Added error handling tests reflecting 404 behavior
+- ✅ Test coverage: 50 total (100% success rate)
 
 ### 3. Documentation
-- ✅ Updated README.md with error handling section
-- ✅ Created SELECTOR_ERROR_HANDLING.md with detailed changes
+- ✅ Updated README.md for POST-only and 404 error format
+- ✅ Updated SELECTOR_ERROR_HANDLING.md to reflect new behavior
 - ✅ Added real-world scraping example (seloger.com use case)
-- ✅ Documented behavior changes and migration notes
+- ✅ Documented breaking changes and migration notes
 
 ### 4. Docker Validation
 - ✅ Rebuilt Docker image with `--no-cache` flag
@@ -39,17 +37,19 @@ This session focused on enhancing error handling for the POST API to return HTML
 ### Before
 ```
 POST /v1/html with selector timeout
-→ HTTP 404 Not Found (or error response)
-→ No HTML content for debugging
+→ HTTP 200 OK
+→ HTML content returned
+→ Metadata includes selector_error message
+→ partial_content: true flag for client awareness
 ```
 
 ### After
 ```
 POST /v1/html with selector timeout
-→ HTTP 200 OK
-→ HTML content returned
-→ Metadata includes selector_error message
-→ partial_content: true flag for client awareness
+→ HTTP 404 Not Found
+→ Error response wraps HTML in `detail.content`
+→ Diagnostics in `detail.metadata.selector_error`
+→ `detail.metadata.partial_content: true`
 ```
 
 ## Test Results
@@ -72,7 +72,7 @@ Contract Tests:             28 tests ✅
 Integration Tests:          2 tests ✅
   - POST with headers      (2 tests)
 
-Total: 62 tests, 100% pass rate
+Total: 50 tests, 100% pass rate
 ```
 
 ## Files Modified
@@ -146,12 +146,14 @@ Possible future enhancements:
 
 ## Breaking Changes
 
-⚠️ **GET Endpoint Only**: The deprecated GET endpoint now returns HTML with metadata instead of 404 on selector timeout. POST endpoint behavior unchanged (already graceful).
+⚠️ **GET Endpoint Removed**: The API is POST-only.
 
-Clients using the GET endpoint should:
-1. Migrate to POST endpoint (recommended)
-2. Check `metadata.partial_content` instead of status code
-3. Remove code that expects 404 responses for selector failures
+⚠️ **Selector Timeout Behavior**: Now returns HTTP 404 with HTML embedded in error response (`detail.content`) and diagnostics in `detail.metadata`.
+
+Clients should:
+1. Use POST endpoint for all integrations
+2. Handle 404 responses by parsing `detail.content` and `detail.metadata`
+3. Remove code paths depending on GET semantics
 
 ## Summary
 

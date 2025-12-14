@@ -342,6 +342,22 @@ The CI runs:
 2. **Test**: Unit, contract, and integration tests with coverage
 3. **Build**: Docker image build and health check
 
+## API Endpoints
+
+| Endpoint | Method | Status | Description |
+|----------|--------|--------|-------------|
+| `/v1/html` | POST | ✅ Active | Retrieve HTML with custom headers (recommended) |
+| `/health` | GET | ✅ Active | Health check |
+| `/metrics` | GET | ✅ Active | Performance metrics |
+
+## Error Handling
+
+- Selector timeout or not found returns **HTTP 404**, with HTML content included in `detail.content` and diagnostics in `detail.metadata` (`selector_error`, `partial_content`).
+
+## Test Totals
+
+- Total tests: 50 (100% passing)
+
 ## Resources
 
 - **FastAPI Documentation**: https://fastapi.tiangolo.com/

@@ -8,10 +8,6 @@ Enhanced the POST API to return HTML content even when CSS selectors fail to mat
 ### 1. Core Renderer (`src/core/renderer.py`)
 **Before**: Raised `SelectorNotFoundError` when selector timeout occurred, aborting HTML retrieval.
 **After**: 
-- Captures selector timeout in `selector_error` variable instead of raising exception
-- Continues to retrieve HTML content regardless of selector status
-- Adds metadata fields to indicate partial content and error details
-- Logs "Selector not found within timeout: <selector> - capturing HTML anyway for debugging"
 
 ```python
 selector_error = None
@@ -40,12 +36,10 @@ class ResponseMetadata(BaseModel):
 ```
 
 ### 3. Test Coverage
-- **3 new unit tests** in `tests/unit/test_selector_error_handling.py`:
   - `test_render_returns_html_when_selector_not_found`: Validates HTML returned with selector error
   - `test_render_successful_with_selector`: Confirms normal selector behavior unchanged
   - `test_render_without_selector`: Validates no error when selector omitted
 
-- **1 updated contract test** in `tests/contract/test_selector_match.py`:
   - `test_selector_timeout_handling`: Now expects 200 OK with HTML content + error metadata
 
 ## Behavior Changes
@@ -96,10 +90,6 @@ curl -X POST http://localhost:8000/v1/html \
 ```
 
 **Result**:
-- ✅ Returns HTTP 200 with HTML content (1626+ bytes)
-- ✅ Provides `selector_error` message for debugging
-- ✅ Sets `partial_content: true` to indicate incomplete result
-- ✅ Enables HTML structure analysis even when selector fails
 
 ## Benefits
 
@@ -113,9 +103,6 @@ curl -X POST http://localhost:8000/v1/html \
 
 ```
 ============================= 60 passed in 12.37s ==============================
-- 29 unit tests (including 3 new selector error tests)
-- 28 contract tests (including 1 updated test)
-- 3 integration tests
 ```
 
 All tests passing ✅
@@ -132,9 +119,6 @@ Successfully tagged browse-local:latest
 Container test with seloger.com:
 ```
 ✅ SUCCESS: HTML content returned with selector error metadata
-- Content length: 1626+ bytes
-- Selector error: "Selector 'a[title][data-testid]' not found within 15000ms timeout"
-- Partial content flag: true
 ```
 
 ## Migration Notes
@@ -152,9 +136,5 @@ The POST endpoint already includes this behavior by design - it was built with g
 
 ## Next Steps
 
-- ✅ Code implementation complete
-- ✅ All tests passing (60/60)
-- ✅ Docker image rebuilt and validated
-- ✅ Documentation complete
 
 This enhancement makes the API more suitable for real-world web scraping scenarios where selector matching is unpredictable and HTML inspection is crucial for debugging.

@@ -3,7 +3,6 @@
 import pytest
 import pytest_asyncio
 import asyncio
-from typing import AsyncGenerator
 from httpx import AsyncClient, ASGITransport
 from unittest.mock import AsyncMock, MagicMock
 

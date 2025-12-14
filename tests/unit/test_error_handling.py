@@ -1,7 +1,6 @@
 import pytest
 from fastapi import FastAPI
 from starlette.requests import Request
-import pytest
 from fastapi.testclient import TestClient
 
 from src.api.errors import (

@@ -121,13 +121,13 @@ class PageRenderer:
 
                 # Apply wait condition
                 if wait_condition == "network-idle":
-                    logger.info(f"Wait condition applied: network-idle", extra={"request_id": request_id})
+                    logger.info("Wait condition applied: network-idle", extra={"request_id": request_id})
                     try:
                         await page.wait_for_load_state("networkidle", timeout=timeout)
-                        logger.debug(f"Network idle reached", extra={"request_id": request_id})
+                        logger.debug("Network idle reached", extra={"request_id": request_id})
                     except PlaywrightTimeoutError:
                         logger.error(
-                            f"Network idle timeout",
+                            "Network idle timeout",
                             extra={"request_id": request_id, "timeout_ms": timeout},
                             exc_info=True,
                         )
@@ -182,7 +182,7 @@ class PageRenderer:
                         )
 
                 # Get HTML content (handle transient navigation updates)
-                logger.debug(f"Capturing page content", extra={"request_id": request_id})
+                logger.debug("Capturing page content", extra={"request_id": request_id})
                 try:
                     html_content = await page.content()
                 except Exception:
@@ -198,7 +198,7 @@ class PageRenderer:
                         raise BrowserError(f"Failed to retrieve content: {str(e)}")
 
                 logger.debug(
-                    f"Page content captured", extra={"request_id": request_id, "content_size": len(html_content)}
+                    "Page content captured", extra={"request_id": request_id, "content_size": len(html_content)}
                 )
 
                 # Payload size is unrestricted per updated requirements
@@ -221,7 +221,7 @@ class PageRenderer:
                     metadata["selector_error"] = selector_error
                     metadata["partial_content"] = True
                     logger.warning(
-                        f"Selector error occurred, raising exception with HTML content",
+                        "Selector error occurred, raising exception with HTML content",
                         extra={"request_id": request_id, "selector_error": selector_error},
                     )
                     raise SelectorNotFoundWithContentError(
@@ -229,7 +229,7 @@ class PageRenderer:
                     )
 
                 logger.info(
-                    f"Page rendered successfully",
+                    "Page rendered successfully",
                     extra={
                         "request_id": request_id,
                         "url": page.url,

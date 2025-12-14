@@ -3,7 +3,6 @@ import pytest
 
 from src.core.renderer import PageRenderer
 from src.core.browser import BrowserSession
-from src.api.errors import TimeoutError as RenderTimeoutError
 
 
 class DummyPage:

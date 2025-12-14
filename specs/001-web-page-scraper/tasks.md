@@ -231,7 +231,7 @@ Single project structure:
 
 ### Contract Tests for US3 (OPTIONAL - tests written FIRST)
 
-- [ ] T036 [P] [US3] Create `tests/contract/test_selector_match.py` with:
+- [X] T036 [P] [US3] Create `tests/contract/test_selector_match.py` with:
   - test_wait_for_selector: GET /v1/html?url=...&waitFor=selector&selector=.class returns 200
   - test_selector_required_when_waitFor_selector: GET /v1/html?url=...&waitFor=selector (no selector) returns 400
   - test_invalid_selector_syntax: GET /v1/html?url=...&waitFor=selector&selector=invalid:syntax returns 400
@@ -239,31 +239,31 @@ Single project structure:
 
 ### Implementation for US3
 
-- [ ] T037 [US3] Update `src/core/renderer.py` to support waitFor="selector":
+- [X] T037 [US3] Update `src/core/renderer.py` to support waitFor="selector":
   - Add selector parameter to render() method
   - Use playwright: page.wait_for_selector(selector, timeout=...) when waitFor="selector"
   - Catch TimeoutError and return current DOM state with warning
   - Track actual wait time and include in metadata
 
-- [ ] T038 [P] [US3] Update `src/api/handlers.py`:
+- [X] T038 [P] [US3] Update `src/api/handlers.py`:
   - Add validation: if waitFor="selector", selector MUST be present and non-empty
   - Pass selector to renderer.render()
   - Add warning to metadata if timeout occurred
 
-- [ ] T039 [P] [US3] Update `src/lib/validators.py`:
+- [X] T039 [P] [US3] Update `src/lib/validators.py`:
   - Enhance CSS selector validation to catch more invalid patterns
   - Test with Playwright's selector engine if possible
 
-- [ ] T040 [P] [US3] Create `tests/contract/test_selector_match.py` tests:
+- [X] T040 [P] [US3] Create `tests/contract/test_selector_match.py` tests:
   - Ensure all selector validation edge cases are covered
 
-- [ ] T041 [US3] Create `tests/integration/test_selector_waiting.py` with:
+- [X] T041 [US3] Create `tests/integration/test_selector_waiting.py` with:
   - test_selector_match_example_com: Fetch example.com with waitFor=selector&selector=h1
   - Verify h1 element is in returned HTML
 
-- [ ] T042 [US3] Run contract tests (pytest tests/contract/test_selector_match.py) - should pass ✅
+- [X] T042 [US3] Run contract tests (pytest tests/contract/test_selector_match.py) - should pass ✅
 
-- [ ] T043 [US3] Run integration tests (pytest tests/integration/test_selector_waiting.py) - should pass ✅
+- [X] T043 [US3] Run integration tests (pytest tests/integration/test_selector_waiting.py) - should pass ✅
 
 **Checkpoint**: User Story 3 complete. Selector-based waiting works independently.
 

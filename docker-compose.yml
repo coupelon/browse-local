@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  browse-local:
+    build: .
+    container_name: browse-local-api
+    ports:
+      - "8000:8000"
+    environment:
+      - TIMEOUT_MIN=1000
+      - TIMEOUT_MAX=120000
+      - TIMEOUT_DEFAULT=30000
+      - LOG_LEVEL=INFO
+      - WORKERS=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s

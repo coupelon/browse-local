@@ -139,3 +139,59 @@ def validate_user_agent(user_agent: Optional[str]) -> Optional[str]:
         raise InvalidUserAgentError(user_agent, "User-Agent contains invalid control characters")
     
     return user_agent
+
+
+def validate_headers(headers: Optional[dict[str, str]]) -> dict[str, str]:
+    """
+    Validate custom HTTP headers for security and format.
+    
+    Args:
+        headers: Dictionary of HTTP headers to validate
+        
+    Returns:
+        Validated headers dictionary (empty dict if None)
+        
+    Raises:
+        ValueError: If headers contain blocked headers or invalid format
+    """
+    if headers is None:
+        return {}
+    
+    # Blocked headers (dangerous or auto-managed by browser/proxy)
+    blocked_headers = {
+        "host", "content-length", "transfer-encoding", "connection",
+        "upgrade", "te", "trailer", "proxy-authorization", "proxy-authenticate"
+    }
+    
+    validated = {}
+    for name, value in headers.items():
+        # Check header name format (RFC 7230: field-name = token)
+        if not re.match(r"^[a-zA-Z0-9\-]+$", name):
+            raise ValueError(
+                f"Invalid header name format: '{name}'. "
+                "Only alphanumeric characters and hyphens are allowed."
+            )
+        
+        # Check if blocked
+        if name.lower() in blocked_headers or name.lower().startswith("proxy-"):
+            raise ValueError(
+                f"Header '{name}' is blocked for security reasons. "
+                "Blocked headers: Host, Content-Length, Transfer-Encoding, Connection, "
+                "Upgrade, TE, Trailer, Proxy-*"
+            )
+        
+        # Check value is string
+        if not isinstance(value, str):
+            raise ValueError(
+                f"Header value for '{name}' must be a string, got {type(value).__name__}"
+            )
+        
+        # Check for control characters in value (except tab)
+        if any(ord(c) < 32 and c != '\t' or ord(c) == 127 for c in value):
+            raise ValueError(
+                f"Header value for '{name}' contains invalid control characters"
+            )
+        
+        validated[name] = value
+    
+    return validated

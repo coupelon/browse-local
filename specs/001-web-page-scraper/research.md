@@ -368,6 +368,53 @@ CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 ---
 
+## 14. API Migration: GET Query Params → POST JSON Body + Custom Headers
+
+**Decision**: Transition from `GET /v1/html?url=...&waitFor=...` to `POST /v1/html` with JSON body.
+
+**Rationale**:
+- **Scalability**: JSON body supports complex structures (custom headers) and large payloads without URL length limits (GET max ~2–8KB; POST unlimited).
+- **Standard Practice**: Industry APIs (OpenAI, AWS) use POST for operations requiring configurable parameters.
+- **Custom Headers**: Users can pass any HTTP header (User-Agent, Authorization, Accept-Language, etc.) via `headers` object; eliminates dedicated `userAgent` parameter.
+- **Type Safety**: JSON + Pydantic validation is stronger than query string parsing.
+- **Backwards Compatibility**: Keep GET endpoint functional with deprecation warning; allow gradual migration.
+
+**Request Format (New)**:
+```json
+POST /v1/html HTTP/1.1
+Content-Type: application/json
+
+{
+  "url": "https://example.com",
+  "waitFor": "network-idle",
+  "selector": null,
+  "headers": {
+    "User-Agent": "Mozilla/5.0 ...",
+    "Accept-Language": "fr-FR"
+  },
+  "timeout": 15000
+}
+```
+
+**Response** (unchanged): Same structure with `content` and `metadata`.
+
+**Header Validation**:
+- Whitelist-based: Allow standard headers + custom `X-*` headers.
+- Blocked: `Host`, `Content-Length`, `Transfer-Encoding`, `Connection`, `Upgrade`, `Proxy-*`, `TE`, `Trailer` (security).
+- Merge Strategy: User headers override Playwright defaults.
+
+**Testing**:
+- Contract tests validate POST schema, error codes, header passing.
+- Integration tests verify custom headers are sent to target URL.
+- GET endpoint tests remain for backwards compatibility verification.
+
+**Migration Timeline**:
+- Phase 1 (this cycle): Implement POST endpoint; keep GET functional.
+- Phase 2 (next cycle): Add deprecation warning to GET; encourage POST adoption.
+- Phase 3 (later): Consider removing GET if adoption is high.
+
+---
+
 ## Summary: All NEEDS CLARIFICATION Resolved ✅
 
 | Item | Clarification | Decision |
@@ -379,8 +426,10 @@ CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 | Target Platform | Runtime? | Docker container (Linux) |
 | Project Type | Architecture? | Single backend API service |
 | Performance Goals | Specific numbers? | p95 < 2s (basic), < 10s (rendering) |
-| Constraints | Limits? | 1-120s timeout, 50MB max HTML |
-| Scale/Scope | MVP or full? | MVP (P1 features) |
+| Constraints | Limits? | 1-120s timeout, unlimited HTML payload |
+| Scale/Scope | MVP or full? | MVP (P1 features) + POST migration |
+| API Design | GET vs POST? | POST with JSON body + custom headers |
+| Custom Headers | How to pass? | `headers` object in JSON body (replaces userAgent param) |
 
-**Overall Assessment**: Phase 0 research complete. All technical decisions are justified, documented, and ready for Phase 1 design (data-model.md, contracts/, quickstart.md).
+**Overall Assessment**: Phase 0 research complete, including new POST API migration research. All technical decisions justified; ready for Phase 1 design (data-model.md, contracts/, quickstart.md).
 

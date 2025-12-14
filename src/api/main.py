@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.browser import BrowserSession
 from src.core.logger import setup_logging, get_logger
-from src.api.handlers import get_html, get_health
-from src.api.schemas import HealthResponse
+from src.api.handlers import post_html, get_health, get_metrics
+from src.api.schemas import HealthResponse, HtmlRequestPost
 from src.api.errors import BrowseLocalError, browse_local_error_handler, generic_error_handler
 
 # Setup logging
@@ -68,13 +68,17 @@ app.add_exception_handler(BrowseLocalError, browse_local_error_handler)
 app.add_exception_handler(Exception, generic_error_handler)
 
 # Register routes
-app.get(
+@app.post(
     "/v1/html",
     response_model=None,  # Allow raw dict response
     tags=["HTML Retrieval"],
-    summary="Retrieve HTML content from a web page",
-    description="Fetch and return the HTML content of a web page with optional wait conditions"
-)(get_html)
+    summary="Retrieve HTML content from a web page (POST)",
+    description="Fetch and return the HTML content of a web page with custom HTTP headers support. "
+                "Supports User-Agent, Cookie, Authorization, Accept-Language, and other custom headers."
+)
+async def post_html_endpoint(request: HtmlRequestPost):
+    """POST endpoint with custom headers support."""
+    return await post_html(request)
 
 app.get(
     "/health",
@@ -83,6 +87,14 @@ app.get(
     summary="Health check endpoint",
     description="Check the health status of the API and browser session"
 )(get_health)
+
+app.get(
+    "/metrics",
+    response_model=None,
+    tags=["Monitoring"],
+    summary="Service metrics",
+    description="Operational metrics and recent requests"
+)(get_metrics)
 
 
 @app.get("/", include_in_schema=False)

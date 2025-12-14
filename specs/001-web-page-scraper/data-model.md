@@ -2,72 +2,84 @@
 
 **Phase**: Phase 1 (Design & Contracts)  
 **Date**: 2025-12-14  
-**Branch**: `001-web-page-scraper`
+**Branch**: `001-web-page-scraper`  
+**Status**: Updated for POST JSON + Custom Headers
 
 ## Overview
 
 This document defines the data entities, their relationships, and validation rules for the Web Page HTML Retrieval API. All entities are derived from the feature specification requirements.
 
+**Architecture Change**: The API has transitioned from `GET /v1/html?params` to `POST /v1/html` with JSON body, enabling support for custom HTTP headers and improved parameter passing.
+
 ---
 
-## Entity: HtmlRequest
+## Entity: HtmlRequest (POST Body)
 
 **Purpose**: Encapsulates all parameters for fetching and rendering a web page
+
+**Endpoint**: `POST /v1/html`
+
+**Content-Type**: `application/json`
 
 **Fields**:
 
 | Field | Type | Required | Default | Constraints | Purpose |
 |-------|------|----------|---------|-------------|---------|
 | `url` | string (URI) | Yes | — | Valid HTTP(S) URL, max 2048 chars | Target web page URL |
-| `waitFor` | enum | No | `"none"` | `"none"` \| `"network-idle"` \| `"selector"` | Rendering wait strategy |
-| `selector` | string | Conditional | null | Valid CSS selector, max 500 chars | Element to wait for (required if `waitFor="selector"`) |
-| `userAgent` | string | No | Default Chrome | 1-1000 chars | Custom browser user agent string |
-| `timeout` | integer | No | 30000 | 1000-120000 (milliseconds) | Maximum wait time before returning partial result |
+| `waitFor` | enum | No | `"none"` | `"none"` \| `"network-idle"` | Rendering wait strategy |
+| `selector` | string | Conditional | null | Valid CSS selector, max 500 chars | Element to wait for (if applicable) |
+| `headers` | object | No | {} | dict[str, str]; blocked headers filtered | Custom HTTP headers to include in request |
+| `timeout` | integer | No | 30000 | 1000-120000 (milliseconds) | Maximum wait time before returning result |
 
 **Validation Rules**:
 
 1. **URL Validation**:
    - MUST be a valid HTTP or HTTPS URL (RFC 3986)
-   - MUST be reachable (checked at request time, not stored)
+   - MUST be reachable (checked at request time)
    - Localhost URLs (e.g., `http://localhost:3000`) are allowed
-   - Maximum length: 2048 characters (satisfies FR-012)
+   - Maximum length: 2048 characters
    - Examples:
-     - ✅ `https://example.com`
+     - ✅ `https://www.seloger.com/classified-search?...`
      - ✅ `https://example.com/path?query=value#fragment`
      - ✅ `http://localhost:8000`
      - ❌ `not-a-url` (error: INVALID_URL)
      - ❌ `ftp://example.com` (error: UNSUPPORTED_SCHEME)
 
 2. **WaitFor Validation**:
-   - MUST be one of: `"none"`, `"network-idle"`, `"selector"`
-   - Example:
-     - ✅ `waitFor=none` (or omitted)
-     - ✅ `waitFor=network-idle`
-     - ✅ `waitFor=selector`
-     - ❌ `waitFor=dom-ready` (error: INVALID_WAIT_STRATEGY)
+   - MUST be one of: `"none"`, `"network-idle"`
+   - Default: `"none"` (capture immediately)
+   - Examples:
+     - ✅ `"none"` or omitted (no wait)
+     - ✅ `"network-idle"` (wait for network idle)
+     - ❌ `"selector"` (deprecated syntax; use `selector` field instead)
 
-3. **Selector Validation** (when `waitFor="selector"`):
-   - MUST be present and non-empty
-   - MUST be a valid CSS selector (parsed by Playwright)
+3. **Selector Validation**:
+   - OPTIONAL; if provided, MUST be a valid CSS selector
+   - MUST NOT be combined with `waitFor="network-idle"` (error: CONFLICTING_PARAMETERS)
    - Maximum length: 500 characters
    - Examples:
      - ✅ `.article-content`
+     - ✅ `a[title][data-testid]`
      - ✅ `div#main > p:first-child`
-     - ✅ `[data-test="submit-button"]`
-     - ❌ `` (empty; error: SELECTOR_REQUIRED)
+     - ❌ `` (empty; error: INVALID_SELECTOR)
      - ❌ `[invalid:selector` (error: INVALID_SELECTOR_SYNTAX)
 
-4. **UserAgent Validation**:
-   - Optional; if omitted, use default Chrome desktop agent
-   - MUST be 1-1000 characters
-   - No special validation; passed directly to browser
+4. **Headers Validation** (NEW):
+   - OPTIONAL; if provided, MUST be `dict[str, str]`
+   - Keys: Valid HTTP header names (alphanumeric, hyphen).
+   - Values: Strings (no nested objects/arrays).
+   - Blocked headers (security): `Host`, `Content-Length`, `Transfer-Encoding`, `Connection`, `Upgrade`, `Proxy-*`, `TE`, `Trailer`
+   - Allowed: Standard headers (User-Agent, Accept-Language, Authorization, Cookie, etc.) + custom `X-*` headers
+   - Merging: User headers override Playwright defaults.
    - Examples:
-     - ✅ (omitted) → Uses: `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36...`
-     - ✅ `Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X)...`
-     - ❌ `` (empty; error: INVALID_USER_AGENT)
+     - ✅ `{"User-Agent": "Mozilla/5.0 (iPhone...)", "Accept-Language": "fr-FR"}`
+     - ✅ `{"Authorization": "Bearer token123"}`
+     - ✅ `{"X-Custom-Header": "value"}`
+     - ❌ `{"Host": "example.com"}` (error: BLOCKED_HEADER or silently ignored)
+     - ❌ `{"User-Agent": 123}` (error: INVALID_HEADER_VALUE, must be string)
 
 5. **Timeout Validation**:
-   - Optional; default: 30000 milliseconds (30 seconds)
+   - OPTIONAL; default: 30000 milliseconds (30 seconds)
    - MUST be an integer
    - Range: 1000-120000 milliseconds (1-120 seconds)
    - Examples:
@@ -77,10 +89,54 @@ This document defines the data entities, their relationships, and validation rul
      - ❌ 500 (error: TIMEOUT_TOO_SHORT)
      - ❌ 200000 (error: TIMEOUT_TOO_LONG)
 
-6. **Conditional Logic**:
-   - IF `waitFor="selector"` THEN `selector` MUST be present AND valid
-   - IF `waitFor!="selector"` THEN `selector` is ignored (if provided)
-   - IF `selector` is provided THEN `waitFor` MUST equal `"selector"` (or return warning)
+6. **Conflict Detection**:
+   - IF `selector` is present AND `waitFor="network-idle"` THEN error: CONFLICTING_PARAMETERS (422 Unprocessable Entity)
+   - IF `selector` is present THEN wait for selector in DOM
+   - IF `waitFor="network-idle"` THEN wait for network idle
+   - IF both absent THEN capture immediately
+
+---
+
+## Example HtmlRequest Payloads
+
+**Basic Request** (no wait):
+```json
+{
+  "url": "https://example.com"
+}
+```
+
+**With Network Idle**:
+```json
+{
+  "url": "https://www.seloger.com/classified-search",
+  "waitFor": "network-idle",
+  "timeout": 15000
+}
+```
+
+**With CSS Selector**:
+```json
+{
+  "url": "https://www.seloger.com/classified-search",
+  "selector": "a[title][data-testid]",
+  "timeout": 20000
+}
+```
+
+**With Custom Headers**:
+```json
+{
+  "url": "https://www.seloger.com/classified-search",
+  "waitFor": "network-idle",
+  "headers": {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0",
+    "Accept-Language": "fr-FR,fr;q=0.9",
+    "Authorization": "Bearer token123"
+  },
+  "timeout": 15000
+}
+```
 
 ---
 

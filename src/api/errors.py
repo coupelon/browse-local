@@ -60,6 +60,20 @@ class SelectorNotFoundError(BrowseLocalError):
         )
 
 
+class SelectorNotFoundWithContentError(BrowseLocalError):
+    """Raised when CSS selector does not match, but HTML content is available for debugging."""
+    
+    def __init__(self, selector: str, timeout_ms: int, html_content: str, metadata: Dict[str, Any]):
+        self.html_content = html_content
+        self.metadata = metadata
+        super().__init__(
+            message=f"Selector '{selector}' not found within {timeout_ms}ms",
+            code="SELECTOR_NOT_FOUND",
+            status_code=status.HTTP_404_NOT_FOUND,
+            details={"selector": selector, "timeout_ms": timeout_ms}
+        )
+
+
 class InvalidSelectorError(BrowseLocalError):
     """Raised when CSS selector syntax is invalid."""
     

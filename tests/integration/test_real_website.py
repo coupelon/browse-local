@@ -22,13 +22,16 @@ class TestRealWebsite:
         assert "<html" in content.lower() or "<!doctype html>" in content.lower()
     
     async def test_http_and_https(self, test_client: AsyncClient):
-        """Test that both http:// and https:// URLs work."""
+        """Test that both http:// and https:// URLs work.
+
+        Use neverssl.com for HTTP to avoid environments that auto-upgrade or block plain HTTP.
+        """
         # Test HTTPS
         https_response = await test_client.get("/v1/html?url=https://example.com")
         assert https_response.status_code == 200
-        
-        # Test HTTP
-        http_response = await test_client.get("/v1/html?url=http://example.com")
+
+        # Test HTTP using neverssl.com (intentionally HTTP-only)
+        http_response = await test_client.get("/v1/html?url=http://neverssl.com")
         assert http_response.status_code == 200
         
         # Both should return valid content

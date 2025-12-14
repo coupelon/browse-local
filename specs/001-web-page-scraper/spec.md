@@ -126,7 +126,6 @@ A developer wants to control how long the API waits before timing out. Different
 - **FR-009**: System MUST handle redirects (up to a reasonable limit, e.g., 5 redirects) and return the final page's HTML.
 - **FR-010**: System MUST log all requests with request ID for traceability (structured JSON logging).
 - **FR-011**: System MUST validate CSS selector syntax; if invalid, return HTTP 400 with error details.
-- **FR-012**: System MUST reject requests with extremely large payloads (URL + parameters > 10KB) with HTTP 413.
 
 ### Key Entities *(include if feature involves data)*
 

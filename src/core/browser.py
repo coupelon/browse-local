@@ -74,31 +74,45 @@ class BrowserSession:
     async def new_context(self, user_agent: Optional[str] = None):
         """Create a new browser context (isolated session)."""
         if not self._initialized or not self._browser:
+            logger.error("Browser not initialized")
             raise BrowserError("Browser not initialized")
         
         context: Optional[BrowserContext] = None
         try:
+            logger.debug(f"Creating new browser context (user_agent={bool(user_agent)})")
             context_options = {}
             if user_agent:
                 context_options["user_agent"] = user_agent
+                logger.debug(f"User agent set in context")
             
             context = await self._browser.new_context(**context_options)
+            logger.debug("Browser context created successfully")
             yield context
         finally:
             if context:
-                await context.close()
+                try:
+                    await context.close()
+                    logger.debug("Browser context closed")
+                except Exception as e:
+                    logger.error(f"Error closing context: {e}", exc_info=True)
     
     @asynccontextmanager
     async def new_page(self, user_agent: Optional[str] = None):
         """Create a new page in a new context."""
+        logger.debug(f"Creating new browser page (user_agent={bool(user_agent)})")
         async with self.new_context(user_agent=user_agent) as context:
             page: Optional[Page] = None
             try:
                 page = await context.new_page()
+                logger.debug("Browser page created successfully")
                 yield page
             finally:
                 if page:
-                    await page.close()
+                    try:
+                        await page.close()
+                        logger.debug("Browser page closed")
+                    except Exception as e:
+                        logger.error(f"Error closing page: {e}", exc_info=True)
     
     def is_ready(self) -> bool:
         """Check if browser is ready."""

@@ -188,54 +188,38 @@ curl -X POST http://localhost:8000/v1/html \
 
 ### 🐛 Error Handling & Debugging
 
-#### Selector Not Found (Returns HTML for Debugging)
+#### Selector Not Found (Returns HTML with Error)
 
-When a CSS selector times out or is not found, the API **returns HTTP 200** with the HTML content plus error metadata:
+When a CSS selector times out or is not found, the API **returns HTTP 404** but still includes the page HTML in the error body to help debugging. The error response is wrapped under `detail`:
 
 ```json
 {
-  "content": "<html>...</html>",
-  "metadata": {
-    "url": "https://example.com/",
-    "status_code": 200,
-    "duration_ms": 15234,
-    "wait_strategy": "none",
-    "selector_error": "Selector '.property-card' not found within 15000ms timeout",
-    "partial_content": true,
-    "timestamp": "2025-12-14T12:00:00.000Z"
+  "detail": {
+    "content": "<html>...</html>",
+    "metadata": {
+      "url": "https://example.com/",
+      "status_code": 404,
+      "duration_ms": 15234,
+      "wait_strategy": "none",
+      "selector_error": "Selector '.property-card' not found within 15000ms timeout",
+      "partial_content": true,
+      "timestamp": "2025-12-14T12:00:00.000Z"
+    }
   }
 }
 ```
 
 **Key fields for error detection:**
-- `selector_error` (Optional[string]) - Error message when selector was not found
+- `selector_error` (Optional[string]) - Message when selector was not found
 - `partial_content` (Optional[bool]) - True if content may be incomplete
 
-This behavior enables **debugging** of complex web pages where selectors might fail but HTML structure analysis is needed to refine your selector.
+This behavior provides the **HTML for analysis** while signaling an error via the HTTP status code.
 
 ---
 
-### ⚠️ GET Endpoint (Deprecated)
+### GET Endpoint
 
-**Note**: The GET endpoint is deprecated and will be removed on **2025-12-31**. Please migrate to the POST endpoint for new integrations.
-
-#### Basic Retrieval (GET - Deprecated)
-
-```bash
-curl "http://localhost:8000/v1/html?url=https://example.com"
-```
-
-#### Wait for Network Idle (GET - Deprecated)
-
-```bash
-curl "http://localhost:8000/v1/html?url=https://example.com&waitFor=network-idle&timeout=15000"
-```
-
-#### Custom User Agent (GET - Deprecated)
-
-```bash
-curl "http://localhost:8000/v1/html?url=https://example.com&userAgent=Mozilla/5.0%20(iPhone...)"
-```
+The GET endpoint has been **removed**. Use the POST endpoint for all integrations.
 
 ## API Documentation
 
@@ -249,7 +233,6 @@ curl "http://localhost:8000/v1/html?url=https://example.com&userAgent=Mozilla/5.
 | Endpoint | Method | Status | Description |
 |----------|--------|--------|-------------|
 | `/v1/html` | POST | ✅ Active | Retrieve HTML with custom headers (recommended) |
-| `/v1/html` | GET | ⚠️ Deprecated | Legacy endpoint (sunset: 2025-12-31) |
 | `/health` | GET | ✅ Active | Health check |
 | `/metrics` | GET | ✅ Active | Performance metrics |
 
@@ -320,6 +303,7 @@ Available variables:
 - **Validation**: Pydantic v2 with field validators
 - **Security**: Header validation, blocked headers filtering
 - **Testing**: pytest + httpx (60 tests, 100% passing)
+ - **Testing**: pytest + httpx (50 tests, 100% passing)
 - **Containerization**: Docker + Docker Compose
 
 ## Project Structure

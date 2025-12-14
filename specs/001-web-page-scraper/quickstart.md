@@ -47,12 +47,14 @@ curl http://localhost:8000/health
 
 ## Basic Examples
 
-### Example 1: Simple HTML Retrieval
+### Example 1: Simple HTML Retrieval (POST)
 
 Fetch HTML content from a static page (no waiting):
 
 ```bash
-curl "http://localhost:8000/v1/html?url=https://example.com"
+curl -X POST http://localhost:8000/v1/html \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com","waitFor":"none","timeout":15000}'
 ```
 
 **Response** (truncated):
@@ -61,10 +63,10 @@ curl "http://localhost:8000/v1/html?url=https://example.com"
   "content": "<!DOCTYPE html>\n<html>\n<head>...",
   "metadata": {
     "url": "https://example.com",
-    "statusCode": 200,
-    "renderTime": 0.567,
-    "timestamp": "2025-12-14T10:30:00Z",
-    "warnings": []
+    "status_code": 200,
+    "duration_ms": 567,
+    "wait_strategy": "none",
+    "timestamp": "2025-12-14T10:30:00Z"
   }
 }
 ```
@@ -78,7 +80,13 @@ curl "http://localhost:8000/v1/html?url=https://example.com"
 Fetch a page that loads content dynamically via JavaScript; wait for all network requests to complete:
 
 ```bash
-curl "http://localhost:8000/v1/html?url=https://httpbin.org/delay/2&waitFor=network-idle&timeout=15000"
+curl -X POST http://localhost:8000/v1/html \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://httpbin.org/delay/2",
+    "waitFor": "network-idle",
+    "timeout": 15000
+  }'
 ```
 
 **What happens**:
@@ -93,10 +101,10 @@ curl "http://localhost:8000/v1/html?url=https://httpbin.org/delay/2&waitFor=netw
   "content": "<!DOCTYPE html>\n<html>...",
   "metadata": {
     "url": "https://httpbin.org/delay/2",
-    "statusCode": 200,
-    "renderTime": 2.450,
-    "timestamp": "2025-12-14T10:30:02Z",
-    "warnings": []
+    "status_code": 200,
+    "duration_ms": 2450,
+    "wait_strategy": "network-idle",
+    "timestamp": "2025-12-14T10:30:02Z"
   }
 }
 ```
@@ -110,13 +118,20 @@ curl "http://localhost:8000/v1/html?url=https://httpbin.org/delay/2&waitFor=netw
 Wait for a specific element to appear in the DOM before capturing HTML:
 
 ```bash
-curl "http://localhost:8000/v1/html?url=https://example.com&waitFor=selector&selector=.content&timeout=10000"
+curl -X POST http://localhost:8000/v1/html \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com",
+    "waitFor": "none",
+    "selector": ".content",
+    "timeout": 10000
+  }'
 ```
 
 **What happens**:
 1. Page loads at `example.com`
 2. Browser waits for an element matching `.content` selector to appear
-3. Once found (or timeout), HTML is captured
+3. Once found, HTML is captured
 
 **Response**:
 ```json
@@ -124,10 +139,10 @@ curl "http://localhost:8000/v1/html?url=https://example.com&waitFor=selector&sel
   "content": "<!DOCTYPE html>\n<html>...",
   "metadata": {
     "url": "https://example.com",
-    "statusCode": 200,
-    "renderTime": 0.789,
-    "timestamp": "2025-12-14T10:30:00Z",
-    "warnings": []
+    "status_code": 200,
+    "duration_ms": 789,
+    "wait_strategy": "none",
+    "timestamp": "2025-12-14T10:30:00Z"
   }
 }
 ```
@@ -136,54 +151,57 @@ curl "http://localhost:8000/v1/html?url=https://example.com&waitFor=selector&sel
 
 ---
 
-### Example 4: Custom User Agent (Mobile)
+### Example 4: Custom Headers
 
-Emulate a mobile browser to test responsive design:
+Send custom HTTP headers (User-Agent, cookies, authorization, etc.):
 
 ```bash
-curl "http://localhost:8000/v1/html?url=https://example.com&userAgent=Mozilla/5.0%20(iPhone%3B%20CPU%20iPhone%20OS%2014_7_1%20like%20Mac%20OS%20X)%20AppleWebKit/537.36"
+curl -X POST http://localhost:8000/v1/html \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com",
+    "waitFor": "none",
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X)",
+      "Accept-Language": "fr-FR,fr;q=0.9",
+      "Cookie": "session_id=abc123"
+    },
+    "timeout": 15000
+  }'
 ```
 
 **What happens**:
-- Page is fetched with iPhone user agent
-- Server may return mobile-optimized HTML
-- Rendering happens in mobile viewport
+- Page is fetched with custom headers
+- Server may return mobile-optimized or localized HTML
+- Cookies are sent with the request
 
-**Response**: Same structure, but content may differ (mobile layout)
-
-**Note**: URL-encode special characters (spaces, parentheses, etc.)
+**Response**: Same structure, but content may differ based on headers
 
 ---
 
-### Example 5: Timeout Handling
+### Example 5: Iframe Support
 
-Request a slow-loading page with a short timeout:
+Wait for an element inside an iframe:
 
 ```bash
-curl "http://localhost:8000/v1/html?url=https://httpbin.org/delay/15&waitFor=network-idle&timeout=5000"
+curl -X POST http://localhost:8000/v1/html \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://www.w3schools.com/html/html_iframe.asp",
+    "waitFor": "none",
+    "iframe": "iframe[src*=\"default.asp\"]",
+    "selector": "#getdiploma",
+    "timeout": 15000
+  }'
 ```
 
 **What happens**:
-1. Page starts loading
-2. Browser waits for network idle
-3. After 5 seconds (timeout), rendering stops
-4. **Returns HTTP 200 with partial content** (not an error)
+1. Page loads with iframe
+2. Browser waits for iframe to load
+3. Waits for selector inside iframe
+4. Captures HTML of main page
 
-**Response**:
-```json
-{
-  "content": "<!DOCTYPE html>\n<html>...",
-  "metadata": {
-    "url": "https://httpbin.org/delay/15",
-    "statusCode": 200,
-    "renderTime": 5.001,
-    "timestamp": "2025-12-14T10:30:05Z",
-    "warnings": ["Timeout reached (5000ms) before network idle; returning partial content"]
-  }
-}
-```
-
-**Time**: ~5 seconds (timeout duration)
+**Time**: ~2-3 seconds
 
 ---
 
@@ -192,61 +210,92 @@ curl "http://localhost:8000/v1/html?url=https://httpbin.org/delay/15&waitFor=net
 ### Error 1: Invalid URL
 
 ```bash
-curl "http://localhost:8000/v1/html?url=not-a-url"
+curl -X POST http://localhost:8000/v1/html \
+  -H "Content-Type: application/json" \
+  -d '{"url":"not-a-url"}'
 ```
 
-**Response** (HTTP 400):
+**Response** (HTTP 422 - Unprocessable Entity):
 ```json
 {
-  "code": "INVALID_URL",
-  "message": "URL must be a valid HTTP or HTTPS URL",
-  "details": {
-    "url": "not-a-url",
-    "reason": "missing scheme (http or https)"
-  },
-  "timestamp": "2025-12-14T10:30:00Z"
+  "detail": [
+    {
+      "type": "value_error",
+      "loc": ["body", "url"],
+      "msg": "URL must be a valid HTTP or HTTPS URL",
+      "input": "not-a-url"
+    }
+  ]
 }
 ```
 
 ---
 
-### Error 2: Selector Required
+### Error 2: Selector Not Found (Returns HTML for Debugging)
+
+When a CSS selector times out or is not found, the API **returns HTTP 404** but includes the page HTML for debugging:
 
 ```bash
-curl "http://localhost:8000/v1/html?url=https://example.com&waitFor=selector"
-```
-
-**Response** (HTTP 400):
-```json
-{
-  "code": "SELECTOR_REQUIRED",
-  "message": "selector parameter required when waitFor=selector",
-  "details": {
-    "parameter": "selector",
-    "received": null
-  },
-  "timestamp": "2025-12-14T10:30:00Z"
-}
-```
-
----
-
-### Error 3: 404 Not Found
-
-```bash
-curl "http://localhost:8000/v1/html?url=https://example.com/nonexistent-page"
+curl -X POST http://localhost:8000/v1/html \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com",
+    "selector": ".nonexistent-element",
+    "timeout": 2000
+  }'
 ```
 
 **Response** (HTTP 404):
 ```json
 {
-  "code": "NOT_FOUND",
-  "message": "Target URL returned 404 Not Found",
-  "details": {
-    "url": "https://example.com/nonexistent-page",
-    "targetStatusCode": 404
-  },
-  "timestamp": "2025-12-14T10:30:00Z"
+  "detail": {
+    "content": "<!DOCTYPE html>\n<html>...<full page HTML>...",
+    "metadata": {
+      "url": "https://example.com/",
+      "status_code": 404,
+      "duration_ms": 2050,
+      "wait_strategy": "none",
+      "selector_error": "Selector '.nonexistent-element' not found within 2000ms timeout",
+      "partial_content": true,
+      "timestamp": "2025-12-14T10:30:00Z"
+    }
+  }
+}
+```
+
+**Key Points**:
+- HTTP status: **404** (error)
+- Response contains full HTML in `detail.content`
+- Error details in `detail.metadata.selector_error`
+- `partial_content: true` indicates incomplete rendering
+- Useful for debugging: analyze HTML structure to refine your selector
+
+---
+
+### Error 3: Blocked Header
+
+```bash
+curl -X POST http://localhost:8000/v1/html \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com",
+    "headers": {
+      "Host": "evil.com"
+    }
+  }'
+```
+
+**Response** (HTTP 422):
+```json
+{
+  "detail": [
+    {
+      "type": "value_error",
+      "loc": ["body", "headers"],
+      "msg": "Header 'Host' is not allowed for security reasons",
+      "input": {"Host": "evil.com"}
+    }
+  ]
 }
 ```
 
@@ -260,43 +309,69 @@ curl "http://localhost:8000/v1/html?url=https://example.com/nonexistent-page"
 import httpx
 import json
 
-async def fetch_page_html(url: str, wait_for: str = "none"):
-    """Fetch HTML from a page."""
+async def fetch_page_html(url: str, wait_for: str = "none", selector: str = None):
+    """Fetch HTML from a page using POST endpoint."""
     async with httpx.AsyncClient() as client:
-        response = await client.get(
+        payload = {
+            "url": url,
+            "waitFor": wait_for,
+            "timeout": 30000
+        }
+        if selector:
+            payload["selector"] = selector
+        
+        response = await client.post(
             "http://localhost:8000/v1/html",
-            params={
-                "url": url,
-                "waitFor": wait_for,
-                "timeout": 30000
-            }
+            json=payload
         )
+        
+        if response.status_code == 404:
+            # Selector not found, but HTML is available for debugging
+            error_data = response.json()
+            print(f"Warning: {error_data['detail']['metadata']['selector_error']}")
+            return error_data['detail']['content']
+        
         response.raise_for_status()
         return response.json()
 
 # Usage
 result = await fetch_page_html("https://example.com", wait_for="network-idle")
-print(f"Rendered in {result['metadata']['renderTime']}s")
+print(f"Rendered in {result['metadata']['duration_ms']}ms")
 print(f"HTML length: {len(result['content'])} characters")
 ```
 
 ### JavaScript/Node.js Example (with fetch)
 
 ```javascript
-async function fetchPageHtml(url, waitFor = "none") {
-  const params = new URLSearchParams({
+async function fetchPageHtml(url, waitFor = "none", selector = null) {
+  const payload = {
     url: url,
     waitFor: waitFor,
     timeout: 30000
+  };
+  
+  if (selector) {
+    payload.selector = selector;
+  }
+
+  const response = await fetch("http://localhost:8000/v1/html", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
   });
 
-  const response = await fetch(
-    `http://localhost:8000/v1/html?${params}`
-  );
+  if (response.status === 404) {
+    // Selector not found, but HTML is available
+    const errorData = await response.json();
+    console.warn(`Selector error: ${errorData.detail.metadata.selector_error}`);
+    return errorData.detail.content;
+  }
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(`${error.code}: ${error.message}`);
+    throw new Error(`API error: ${JSON.stringify(error)}`);
   }
 
   return await response.json();
@@ -304,7 +379,7 @@ async function fetchPageHtml(url, waitFor = "none") {
 
 // Usage
 const result = await fetchPageHtml("https://example.com", "network-idle");
-console.log(`Rendered in ${result.metadata.renderTime}s`);
+console.log(`Rendered in ${result.metadata.duration_ms}ms`);
 ```
 
 ### cURL with Piping
@@ -312,7 +387,10 @@ console.log(`Rendered in ${result.metadata.renderTime}s`);
 Extract just the HTML content using `jq`:
 
 ```bash
-curl -s "http://localhost:8000/v1/html?url=https://example.com" | jq -r '.content' > page.html
+curl -s -X POST http://localhost:8000/v1/html \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com"}' \
+  | jq -r '.content' > page.html
 ```
 
 ---
@@ -374,7 +452,9 @@ docker-compose up
 
 1. **Reduce Timeout for Fast Pages**:
    ```bash
-   curl "http://localhost:8000/v1/html?url=https://example.com&timeout=3000"
+   curl -X POST http://localhost:8000/v1/html \
+     -H "Content-Type: application/json" \
+     -d '{"url":"https://example.com","timeout":3000}'
    ```
    → Returns in ~1-3s instead of default 30s
 
@@ -416,12 +496,13 @@ docker-compose up
 
 ### Selector Not Matching
 
-**Symptom**: Selector specified but warnings say not found
+**Symptom**: HTTP 404 returned with `selector_error` in metadata
 
 **Solutions**:
 - Verify selector with browser DevTools: Open page in browser, use DevTools to test selector
 - Check JavaScript execution: If selector is added by JS, ensure `waitFor=network-idle` or higher timeout
 - Use more generic selector: `.content` instead of `.article-content-loaded-by-js`
+- Examine returned HTML: The error response includes full HTML in `detail.content` for debugging
 
 ---
 
@@ -438,14 +519,16 @@ docker-compose up
 
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
-| GET | `/v1/html` | Fetch and render HTML |
+| POST | `/v1/html` | Fetch and render HTML with custom headers |
 | GET | `/health` | Health check |
+| GET | `/metrics` | Performance metrics |
 
-**Query Parameters**:
+**POST Body Parameters**:
 - `url` (required): Target URL
 - `waitFor` (optional): `none`, `network-idle`, or `selector`
-- `selector` (optional): CSS selector (required if `waitFor=selector`)
-- `userAgent` (optional): Custom user agent
+- `selector` (optional): CSS selector to wait for
+- `iframe` (optional): Iframe selector for nested content
+- `headers` (optional): Custom HTTP headers (object)
 - `timeout` (optional): Timeout in ms (1000-120000, default 30000)
 
 See [contracts/openapi.yaml](./contracts/openapi.yaml) for full API specification.

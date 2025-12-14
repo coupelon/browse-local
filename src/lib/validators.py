@@ -3,7 +3,7 @@ import re
 from typing import Optional
 from urllib.parse import urlparse
 
-from src.api.errors import InvalidUrlError, InvalidSelectorError
+from src.api.errors import InvalidUrlError, InvalidSelectorError, InvalidUserAgentError
 from src.core.config import settings
 
 
@@ -122,20 +122,20 @@ def validate_user_agent(user_agent: Optional[str]) -> Optional[str]:
         Validated User-Agent or None
         
     Raises:
-        ValueError: If User-Agent is invalid
+        InvalidUserAgentError: If User-Agent is invalid
     """
     if user_agent is None or user_agent == "":
         return None
     
     if not isinstance(user_agent, str):
-        raise ValueError("User-Agent must be a string")
+        raise InvalidUserAgentError(str(user_agent), "User-Agent must be a string")
     
     # Check length
     if len(user_agent) > 1000:
-        raise ValueError("User-Agent exceeds maximum length of 1000 characters")
+        raise InvalidUserAgentError(user_agent, "User-Agent exceeds maximum length of 1000 characters")
     
     # Check for control characters
     if any(ord(c) < 32 or ord(c) == 127 for c in user_agent):
-        raise ValueError("User-Agent contains invalid control characters")
+        raise InvalidUserAgentError(user_agent, "User-Agent contains invalid control characters")
     
     return user_agent

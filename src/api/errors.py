@@ -72,6 +72,18 @@ class InvalidSelectorError(BrowseLocalError):
         )
 
 
+class InvalidUserAgentError(BrowseLocalError):
+    """Raised when User-Agent string is invalid."""
+    
+    def __init__(self, user_agent: str, reason: str = "Invalid User-Agent"):
+        super().__init__(
+            message=f"{reason}: {user_agent[:100]}...",  # Truncate for display
+            code="INVALID_USER_AGENT",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            details={"reason": reason}
+        )
+
+
 class BrowserError(BrowseLocalError):
     """Raised when browser operation fails."""
     

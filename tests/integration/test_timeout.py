@@ -10,10 +10,7 @@ class TestTimeoutIntegration:
 
     async def test_short_timeout_completes(self, test_client: AsyncClient):
         """Test that requests complete within short timeout."""
-        response = await test_client.post(
-            "/v1/html",
-            json={"url": "https://example.com", "timeout": 5000}
-        )
+        response = await test_client.post("/v1/html", json={"url": "https://example.com", "timeout": 5000})
 
         assert response.status_code == 200
         data = response.json()
@@ -27,10 +24,7 @@ class TestTimeoutIntegration:
         timeouts = [2000, 5000, 10000, 30000]
 
         for timeout in timeouts:
-            response = await test_client.post(
-                "/v1/html",
-                json={"url": "https://example.com", "timeout": timeout}
-            )
+            response = await test_client.post("/v1/html", json={"url": "https://example.com", "timeout": timeout})
 
             assert response.status_code == 200
             data = response.json()

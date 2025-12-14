@@ -10,10 +10,7 @@ class TestRealWebsite:
 
     async def test_fetch_example_com(self, test_client: AsyncClient):
         """Test fetching example.com and verify expected content."""
-        response = await test_client.post(
-            "/v1/html",
-            json={"url": "https://example.com", "waitFor": "none"}
-        )
+        response = await test_client.post("/v1/html", json={"url": "https://example.com", "waitFor": "none"})
 
         assert response.status_code == 200
         data = response.json()
@@ -31,17 +28,11 @@ class TestRealWebsite:
         Use neverssl.com for HTTP to avoid environments that auto-upgrade or block plain HTTP.
         """
         # Test HTTPS
-        https_response = await test_client.post(
-            "/v1/html",
-            json={"url": "https://example.com", "waitFor": "none"}
-        )
+        https_response = await test_client.post("/v1/html", json={"url": "https://example.com", "waitFor": "none"})
         assert https_response.status_code == 200
 
         # Test HTTP using neverssl.com (intentionally HTTP-only)
-        http_response = await test_client.post(
-            "/v1/html",
-            json={"url": "http://neverssl.com", "waitFor": "none"}
-        )
+        http_response = await test_client.post("/v1/html", json={"url": "http://neverssl.com", "waitFor": "none"})
         assert http_response.status_code == 200
 
         # Both should return valid content
@@ -54,10 +45,7 @@ class TestRealWebsite:
     async def test_response_metadata_contains_final_url(self, test_client: AsyncClient):
         """Test that metadata URL matches target URL."""
         target_url = "https://example.com"
-        response = await test_client.post(
-            "/v1/html",
-            json={"url": target_url, "waitFor": "none"}
-        )
+        response = await test_client.post("/v1/html", json={"url": target_url, "waitFor": "none"})
 
         assert response.status_code == 200
         data = response.json()

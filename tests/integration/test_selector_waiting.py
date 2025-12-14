@@ -11,8 +11,7 @@ class TestSelectorWaiting:
     async def test_selector_match_example_com(self, test_client: AsyncClient):
         """Test selector wait with example.com h1 element."""
         response = await test_client.post(
-            "/v1/html",
-            json={"url": "https://example.com", "selector": "h1", "timeout": 10000}
+            "/v1/html", json={"url": "https://example.com", "selector": "h1", "timeout": 10000}
         )
 
         assert response.status_code == 200
@@ -31,8 +30,7 @@ class TestSelectorWaiting:
     async def test_selector_with_multiple_elements(self, test_client: AsyncClient):
         """Test selector wait with common element (p tag)."""
         response = await test_client.post(
-            "/v1/html",
-            json={"url": "https://example.com", "selector": "p", "timeout": 10000}
+            "/v1/html", json={"url": "https://example.com", "selector": "p", "timeout": 10000}
         )
 
         assert response.status_code == 200
@@ -46,8 +44,7 @@ class TestSelectorWaiting:
         """Test selector with CSS class syntax."""
         # Use body tag as it always exists
         response = await test_client.post(
-            "/v1/html",
-            json={"url": "https://example.com", "selector": "body", "timeout": 10000}
+            "/v1/html", json={"url": "https://example.com", "selector": "body", "timeout": 10000}
         )
 
         assert response.status_code == 200

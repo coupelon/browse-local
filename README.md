@@ -53,7 +53,7 @@ docker-compose down
 
 ## API Usage
 
-### 🆕 POST Endpoint (Recommended)
+### 🆕 POST Endpoint (Only)
 
 The POST endpoint provides the most powerful and flexible way to retrieve HTML with custom headers support.
 
@@ -190,14 +190,14 @@ curl -X POST http://localhost:8000/v1/html \
 
 #### Selector Not Found (Returns HTML for Debugging)
 
-When a CSS selector times out or is not found, the API **returns HTTP 200** with the HTML content plus error metadata:
+When a CSS selector times out or is not found, the API **returns HTTP 404** but still includes the HTML content and error metadata in the response payload:
 
 ```json
 {
   "content": "<html>...</html>",
   "metadata": {
     "url": "https://example.com/",
-    "status_code": 200,
+    "status_code": 404,
     "duration_ms": 15234,
     "wait_strategy": "none",
     "selector_error": "Selector '.article-content' not found within 15000ms timeout",
@@ -234,28 +234,6 @@ curl -X POST http://localhost:8000/v1/html \
 
 ---
 
-### ⚠️ GET Endpoint (Deprecated)
-
-**Note**: The GET endpoint is deprecated and will be removed on **2025-12-31**. Please migrate to the POST endpoint for new integrations.
-
-#### Basic Retrieval (GET - Deprecated)
-
-```bash
-curl "http://localhost:8000/v1/html?url=https://example.com"
-```
-
-#### Wait for Network Idle (GET - Deprecated)
-
-```bash
-curl "http://localhost:8000/v1/html?url=https://example.com&waitFor=network-idle&timeout=15000"
-```
-
-#### Custom User Agent (GET - Deprecated)
-
-```bash
-curl "http://localhost:8000/v1/html?url=https://example.com&userAgent=Mozilla/5.0%20(iPhone...)"
-```
-
 ## API Documentation
 
 - **Interactive Docs**: Visit `http://localhost:8000/docs` (when running) - Auto-generated OpenAPI documentation
@@ -267,8 +245,7 @@ curl "http://localhost:8000/v1/html?url=https://example.com&userAgent=Mozilla/5.
 
 | Endpoint | Method | Status | Description |
 |----------|--------|--------|-------------|
-| `/v1/html` | POST | ✅ Active | Retrieve HTML with custom headers (recommended) |
-| `/v1/html` | GET | ⚠️ Deprecated | Legacy endpoint (sunset: 2025-12-31) |
+| `/v1/html` | POST | ✅ Active | Retrieve HTML with custom headers |
 | `/health` | GET | ✅ Active | Health check |
 | `/metrics` | GET | ✅ Active | Performance metrics |
 
@@ -294,8 +271,8 @@ playwright install chromium
 # Run all tests
 pytest
 
-# Run with coverage (unit + contract)
-pytest --cov=src tests/unit tests/contract -q
+# Run with coverage (all tests)
+pytest tests/ --cov=src -q
 
 # Run specific test type
 pytest tests/unit/ -v
@@ -338,7 +315,7 @@ Available variables:
 - **Browser Automation**: Playwright with embedded Chromium
 - **Validation**: Pydantic v2 with field validators
 - **Security**: Header validation, blocked headers filtering
-- **Testing**: pytest + httpx (60 tests, 100% passing)
+- **Testing**: pytest + httpx (unit, contract, integration; ~68 tests)
 - **Containerization**: Docker + Docker Compose
 
 ## Project Structure
@@ -364,7 +341,7 @@ browse-local/
 - Basic retrieval: < 2s (p95)
 - Network idle: < 10s (p95)
 - Concurrent requests: ≥10 simultaneous
-- Code coverage: ≥75%
+- Code coverage: ≥80% (target)
 
 ## Troubleshooting
 
@@ -377,9 +354,11 @@ docker pull mcr.microsoft.com/playwright/python:v1.40.0-jammy
 
 ### Timeout issues
 
-Increase the timeout parameter:
+Increase the timeout parameter (POST example):
 ```bash
-curl "http://localhost:8000/v1/html?url=<URL>&timeout=60000"
+curl -X POST "http://localhost:8000/v1/html" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"<URL>","timeout":60000}'
 ```
 
 ### Health check fails

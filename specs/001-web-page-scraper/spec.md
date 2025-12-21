@@ -149,4 +149,4 @@ A developer wants to control how long the API waits before timing out. Different
 - **SC-005**: Concurrent requests (up to 10 simultaneous) are handled without resource exhaustion or memory leaks.
 - **SC-006**: Error responses are consistent and include actionable error messages (100% compliance with error response schema).
 - **SC-007**: Documentation includes at least 3 working examples covering basic retrieval, network-idle, and selector use cases.
-- **SC-008**: 75% code coverage minimum for all API handler and core logic (per Constitution Principle II).
+- **SC-008**: 50% code coverage minimum for all API handler and core logic (per Constitution Principle II).

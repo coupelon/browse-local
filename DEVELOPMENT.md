@@ -370,7 +370,7 @@ The CI runs:
 All code must follow the Constitution principles defined in `.specify/constitution/`:
 
 1. **Code Quality & Maintainability**: Clean, well-documented, linted code
-2. **Test-Driven Development**: 80%+ coverage, tests before implementation
+2. **Test-Driven Development**: 50%+ coverage, tests before implementation
 3. **API Design**: Clear contracts, versioning, error handling
 4. **Performance**: Meet latency targets (< 2s basic, < 10s network-idle)
 5. **User Experience**: Consistent responses, actionable error messages

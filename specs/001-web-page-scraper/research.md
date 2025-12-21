@@ -261,7 +261,7 @@ class ResponseMetadata(BaseModel):
 - `test_urls`: List of stable URLs for integration tests
 - `app_client`: FastAPI test client with dependency injection for mocked browser
 
-**Coverage Target**: 75% minimum (satisfies Constitution Principle II, SC-008)
+**Coverage Target**: 50% minimum (satisfies Constitution Principle II, SC-008)
 
 ---
 

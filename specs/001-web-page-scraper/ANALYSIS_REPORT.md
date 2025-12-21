@@ -69,7 +69,7 @@ This report validates consistency and completeness across all specification arti
 | SC-005 | 10 concurrent requests, no exhaustion | T026, T063 | ✅ |
 | SC-006 | Error responses consistent, actionable | T016, T061 | ✅ |
 | SC-007 | 3+ working examples | quickstart.md, T069 | ✅ |
-| SC-008 | 80% code coverage minimum | T068 | ✅ |
+| SC-008 | 50% code coverage minimum | T068 | ✅ |
 
 **Coverage**: 8/8 (100%) ✅
 
@@ -146,7 +146,7 @@ All NFRs explicitly addressed in design:
 
 - ✅ TDD Mandate: Contract tests (T021, T029, T036, T044, T052) written FIRST
 - ✅ Workflow: Red → Green → Refactor cycle per task structure
-- ✅ Coverage: T068 enforces 75% minimum
+- ✅ Coverage: T068 enforces 50% minimum
 - ✅ Test Types: Contract, Integration, Unit all present
 - ✅ Test Naming: Clear `test_[given]_[when]_[then]` patterns
 

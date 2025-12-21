@@ -179,30 +179,6 @@ curl -X POST http://localhost:8000/v1/html \
 
 ---
 
-### Example 5: Iframe Support
-
-Wait for an element inside an iframe:
-
-```bash
-curl -X POST http://localhost:8000/v1/html \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://www.w3schools.com/html/html_iframe.asp",
-    "waitFor": "none",
-    "iframe": "iframe[src*=\"default.asp\"]",
-    "selector": "#getdiploma",
-    "timeout": 15000
-  }'
-```
-
-**What happens**:
-1. Page loads with iframe
-2. Browser waits for iframe to load
-3. Waits for selector inside iframe
-4. Captures HTML of main page
-
-**Time**: ~2-3 seconds
-
 ---
 
 ## Error Examples

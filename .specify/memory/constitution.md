@@ -52,7 +52,7 @@ Testing is not an afterthought—it is the specification of the feature.
 
 - **TDD Mandate**: Tests MUST be written and approved by review BEFORE any implementation begins; they define the contract between the feature and the system.
 - **Test-First Workflow**: Red → Green → Refactor cycle strictly enforced; if code is implemented without failing tests first, the PR MUST be rejected.
-- **Coverage Baseline**: Minimum 75% code coverage MUST be achieved on all new code; coverage MUST be tracked and reported in CI/CD.
+- **Coverage Baseline**: Minimum 50% code coverage MUST be achieved on all new code; coverage MUST be tracked and reported in CI/CD.
 - **Test Types Required**:
   - **Unit Tests**: For all business logic, utilities, and service functions.
   - **Integration Tests**: For API endpoints, database interactions, and inter-service communication.

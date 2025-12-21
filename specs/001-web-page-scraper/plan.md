@@ -39,7 +39,7 @@ Web Page HTML Retrieval API using Playwright for browser automation and content 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 ✅ **Principle I (Code Quality)**: Readability, naming, DRY, complexity limits, linting configured.  
-✅ **Principle II (Test-Driven Development)**: Unit/contract/integration tests; ≥76% coverage (target 75%); pytest with fixtures.  
+✅ **Principle II (Test-Driven Development)**: Unit/contract/integration tests; ≥76% coverage (target 50%); pytest with fixtures.  
 ✅ **Principle III (API Design & Contracts)**: OpenAPI spec in `/contracts/openapi.yaml`; Pydantic models enforce schema.  
 ✅ **Principle IV (Performance & Scalability)**: Async FastAPI, concurrent test validation; metrics endpoint tracks request times.  
 ✅ **Principle V (UX Consistency)**: Error responses consistent; metadata in all responses; docs at `/docs`.

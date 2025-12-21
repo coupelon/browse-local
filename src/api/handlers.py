@@ -19,7 +19,7 @@ async def post_html(request: HtmlRequestPost) -> HtmlResponse:
     Retrieve HTML content from a web page (POST endpoint with custom headers support).
 
     Args:
-        request: HtmlRequestPost with url, waitFor, selector, headers, timeout, iframe
+        request: HtmlRequestPost with url, waitFor, selector, headers, timeout
 
     Returns:
         HtmlResponse with content and metadata
@@ -36,7 +36,6 @@ async def post_html(request: HtmlRequestPost) -> HtmlResponse:
             "url": str(request.url),
             "waitFor": request.wait_for,
             "selector": request.selector,
-            "iframe": request.iframe,
             "custom_headers_count": len(request.headers) if request.headers else 0,
             "timeout_ms": request.timeout,
         },
@@ -45,7 +44,6 @@ async def post_html(request: HtmlRequestPost) -> HtmlResponse:
     # Validate parameters (headers already validated by Pydantic)
     validated_url = validate_url(str(request.url))
     validated_selector = validate_selector(request.selector)
-    validated_iframe = validate_selector(request.iframe)
     validated_timeout = validate_timeout(request.timeout)
     validated_headers = validate_headers(request.headers)  # Returns empty dict if None
 
@@ -77,7 +75,6 @@ async def post_html(request: HtmlRequestPost) -> HtmlResponse:
             url=validated_url,
             wait_condition=wait_condition,
             selector=validated_selector,
-            iframe_selector=validated_iframe,
             headers=validated_headers if validated_headers else None,
             timeout=validated_timeout,
             request_id=request_id,

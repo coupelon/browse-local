@@ -23,9 +23,6 @@ class HtmlRequest(BaseModel):
     timeout: Optional[int] = Field(
         default=30000, description="Request timeout in milliseconds (1000-120000)", ge=1000, le=120000
     )
-    iframe: Optional[str] = Field(
-        default=None, description="Optional iframe selector to wait for element inside iframe", max_length=500
-    )
 
     class Config:
         """Pydantic configuration."""
@@ -120,11 +117,6 @@ class HtmlRequestPost(BaseModel):
         if self.selector and self.wait_for == "network-idle":
             raise ValueError(
                 "Cannot use selector with waitFor='network-idle'. " "Use waitFor='none' when using a selector."
-            )
-
-        if self.iframe and not self.selector:
-            raise ValueError(
-                "iframe parameter requires a selector to specify which element to wait for inside the iframe."
             )
 
         return self

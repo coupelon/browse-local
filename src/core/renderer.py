@@ -32,7 +32,6 @@ class PageRenderer:
         url: str,
         wait_condition: Optional[str] = None,
         selector: Optional[str] = None,
-        iframe_selector: Optional[str] = None,
         user_agent: Optional[str] = None,
         headers: Optional[dict[str, str]] = None,
         timeout: int = 30000,
@@ -44,9 +43,7 @@ class PageRenderer:
         Args:
             url: Target URL to render
             wait_condition: Wait strategy ("none", "network-idle", or None)
-            selector: CSS selector to wait for (if specified)
-            iframe_selector: CSS selector for the target iframe; when provided,
-                waits for `selector` inside the matched iframe
+            selector: CSS selector to wait for element to appear before capturing HTML
             user_agent: Custom User-Agent header (legacy, prefer headers dict)
             headers: Custom HTTP headers (replaces user_agent for POST endpoint)
             timeout: Request timeout in milliseconds
@@ -141,29 +138,10 @@ class PageRenderer:
                         extra={"request_id": request_id, "selector": selector},
                     )
                     try:
-                        if iframe_selector:
-                            # Wait for iframe, then wait for selector inside iframe
-                            logger.debug(
-                                "Iframe selector provided; waiting for iframe",
-                                extra={"request_id": request_id, "iframe_selector": iframe_selector},
-                            )
-                            await page.wait_for_selector(iframe_selector, timeout=timeout)
-
-                            frame_locator = page.frame_locator(iframe_selector)
-                            await frame_locator.locator(selector).wait_for(timeout=timeout)
-                            logger.debug(
-                                "Selector found inside iframe",
-                                extra={
-                                    "request_id": request_id,
-                                    "selector": selector,
-                                    "iframe_selector": iframe_selector,
-                                },
-                            )
-                        else:
-                            await page.wait_for_selector(selector, timeout=timeout)
-                            logger.debug(
-                                f"Selector found: {selector}", extra={"request_id": request_id, "selector": selector}
-                            )
+                        await page.wait_for_selector(selector, timeout=timeout)
+                        logger.debug(
+                            f"Selector found: {selector}", extra={"request_id": request_id, "selector": selector}
+                        )
                     except PlaywrightTimeoutError:
                         # Capture error but continue to get HTML content for debugging
                         selector_error = f"Selector '{selector}' not found within {timeout}ms timeout"

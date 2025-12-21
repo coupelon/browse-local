@@ -8,7 +8,6 @@ A containerized HTTP API that retrieves HTML content from web pages with advance
 - **Custom HTTP Headers**: Add User-Agent, Cookie, Authorization, and any custom headers
 - **Network Idle Detection**: Wait for dynamic content to load via JavaScript
 - **CSS Selector Matching**: Wait for specific DOM elements before capturing
-- **Iframe Support**: Wait for elements inside iframes
 - **Configurable Timeout**: Control wait times (1-120 seconds)
 - **JSON POST API**: Modern REST API with comprehensive validation
 - **100% Dockerized**: No external dependencies, embedded Chromium
@@ -121,20 +120,6 @@ curl -X POST http://localhost:8000/v1/html \
   }'
 ```
 
-#### POST with Iframe Support
-
-```bash
-curl -X POST http://localhost:8000/v1/html \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://www.w3schools.com/html/html_iframe.asp",
-    "waitFor": "none",
-    "iframe": "iframe[src*=\"default.asp\"]",
-    "selector": "#getdiploma",
-    "timeout": 15000
-  }'
-```
-
 #### Real-World Example: Scraping with Complex Headers
 
 ```bash
@@ -190,7 +175,7 @@ curl -X POST http://localhost:8000/v1/html \
 
 #### Selector Not Found (Returns HTML for Debugging)
 
-When a CSS selector times out or is not found, the API **returns HTTP 404** but still includes the HTML content and error metadata in the response payload:
+  rror metadata in the response payload:
 
 ```json
 {

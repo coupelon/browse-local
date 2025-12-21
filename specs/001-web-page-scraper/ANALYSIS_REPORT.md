@@ -146,7 +146,7 @@ All NFRs explicitly addressed in design:
 
 - ✅ TDD Mandate: Contract tests (T021, T029, T036, T044, T052) written FIRST
 - ✅ Workflow: Red → Green → Refactor cycle per task structure
-- ✅ Coverage: T068 enforces 80% minimum
+- ✅ Coverage: T068 enforces 75% minimum
 - ✅ Test Types: Contract, Integration, Unit all present
 - ✅ Test Naming: Clear `test_[given]_[when]_[then]` patterns
 

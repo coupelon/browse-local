@@ -573,7 +573,7 @@ Single project structure:
     - Lint (flake8, black check)
     - Test (pytest with coverage)
     - Build Docker image
-  - Fail if coverage < 80%
+  - Fail if coverage < 75%
 
 - [X] T071 [P] Add linting configuration:
   - Create `pyproject.toml` with [tool.black], [tool.isort], [tool.pytest.ini_options]

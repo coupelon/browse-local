@@ -86,14 +86,6 @@ class TestPostEndpoint:
         data = response.json()
         assert "detail" in data
 
-    async def test_post_html_iframe_without_selector(self, test_client: AsyncClient):
-        """Test POST endpoint rejects iframe without selector."""
-        response = await test_client.post(
-            "/v1/html", json={"url": "https://example.com", "iframe": "iframe#test"}  # iframe requires selector
-        )
-
-        assert response.status_code == 422  # Validation error
-
     async def test_post_html_camel_case_field_names(self, test_client: AsyncClient):
         """Test POST endpoint accepts camelCase field names."""
         response = await test_client.post(

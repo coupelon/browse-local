@@ -2,6 +2,9 @@
 
 A containerized HTTP API that retrieves HTML content from web pages with advanced rendering support using Playwright and embedded Chromium.
 
+> [!CAUTION]
+> The code for this project was produced by generative AI, following specifications and constraints that were also drafted and enhanced by generative AI within the /specs and /.specify directories, in accordance with the [GitHub Spec Kit](https://github.com/github/spec-kit) development methodology. Long-term management of this project is only possible through these specifications, which must therefore be maintained over time.
+
 ## Features
 
 - **Basic HTML Retrieval**: Fetch HTML content from any public URL

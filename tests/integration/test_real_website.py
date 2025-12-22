@@ -1,5 +1,6 @@
 """Integration tests for real website fetching (User Story 1)."""
 
+import os
 import pytest
 from httpx import AsyncClient
 
@@ -22,6 +23,7 @@ class TestRealWebsite:
         # Verify HTML structure
         assert "<html" in content.lower() or "<!doctype html>" in content.lower()
 
+    @pytest.mark.skipif(os.getenv("CI") == "true", reason="HTTP site neverssl.com not accessible in CI environment")
     async def test_http_and_https(self, test_client: AsyncClient):
         """Test that both http:// and https:// URLs work.
 

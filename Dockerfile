@@ -1,5 +1,5 @@
 # Use official Playwright image with embedded Chromium
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
+FROM mcr.microsoft.com/playwright/python:v1.65.2-noble
 
 # Metadata labels
 LABEL maintainer="Browse Local Team"
@@ -18,8 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ /app/src/
 
 # Create non-root user (optional but recommended)
-# Note: UID 1000 may already exist in base image, use 1001
-RUN useradd -m -u 1001 appuser && chown -R appuser:appuser /app
+# Note: UIDs 1000 (ubuntu) and 1001 (pwuser) already exist in the noble base image
+RUN useradd -m -u 1002 appuser && chown -R appuser:appuser /app
 USER appuser
 
 # Expose API port

@@ -337,7 +337,7 @@ browse-local/
 
 Ensure you're using the official Playwright Docker image:
 ```bash
-docker pull mcr.microsoft.com/playwright/python:v1.40.0-jammy
+docker pull mcr.microsoft.com/playwright/python:v1.65.2-noble
 ```
 
 ### Timeout issues

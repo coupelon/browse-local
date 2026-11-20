@@ -46,7 +46,7 @@ curl "http://localhost:8000/v1/html?url=https://example.com"
 
 ### Image Details
 
-- **Base Image**: `mcr.microsoft.com/playwright/python:v1.40.0-jammy`
+- **Base Image**: `mcr.microsoft.com/playwright/python:v1.65.2-noble`
 - **Non-root User**: `appuser` (UID 1001)
 - **Port**: 8000
 - **Health Check**: Built-in via HEALTHCHECK directive
@@ -547,7 +547,7 @@ imagePullSecrets:
 - Run container as non-root user (default: `appuser`)
 - Use network policies to restrict traffic
 - Scan image for vulnerabilities: `docker scan browse-local:latest`
-- Keep base image updated: `FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy`
+- Keep base image updated: `FROM mcr.microsoft.com/playwright/python:v1.65.2-noble`
 
 ### 3. Logging & Monitoring
 

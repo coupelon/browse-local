@@ -11,6 +11,18 @@ from src.api.errors import BrowserError
 logger = get_logger(__name__)
 
 
+def build_default_user_agent(browser_version: str) -> str:
+    """Build a desktop Chrome on Linux User-Agent for the given Chromium version.
+
+    Chrome's reduced UA only exposes the major version (e.g. "Chrome/140.0.0.0").
+    """
+    major = browser_version.split(".")[0]
+    return (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        f"(KHTML, like Gecko) Chrome/{major}.0.0.0 Safari/537.36"
+    )
+
+
 class BrowserSession:
     """Singleton browser session manager using Playwright."""
 
@@ -21,6 +33,7 @@ class BrowserSession:
         """Initialize browser session (use get_instance instead)."""
         self._playwright: Optional[Playwright] = None
         self._browser: Optional[Browser] = None
+        self._default_user_agent: Optional[str] = None
         self._initialized = False
 
     @classmethod
@@ -43,14 +56,22 @@ class BrowserSession:
             self._playwright = await async_playwright().start()
             self._browser = await self._playwright.chromium.launch(
                 headless=True,
+                # Full Chromium in new headless mode instead of the stripped-down
+                # headless shell: client hints then report "Chromium" brands,
+                # consistent with the default User-Agent below.
+                channel="chromium",
                 args=[
                     "--disable-blink-features=AutomationControlled",
                     "--disable-dev-shm-usage",
                     "--no-sandbox",
                 ],
             )
+            self._default_user_agent = build_default_user_agent(self._browser.version)
             self._initialized = True
-            logger.info("Browser session initialized successfully")
+            logger.info(
+                f"Browser session initialized successfully "
+                f"(Chromium {self._browser.version}, default UA: {self._default_user_agent})"
+            )
         except Exception as e:
             logger.error(f"Failed to initialize browser: {e}")
             raise BrowserError(f"Failed to initialize browser: {e}")
@@ -81,10 +102,12 @@ class BrowserSession:
         context: Optional[BrowserContext] = None
         try:
             logger.debug(f"Creating new browser context (user_agent={bool(user_agent)})")
-            context_options = {}
+            # Without an explicit UA, use a regular desktop Chrome/Linux UA
+            # matching the embedded Chromium version (the built-in one
+            # advertises "HeadlessChrome").
+            context_options = {"user_agent": user_agent or self._default_user_agent}
             if user_agent:
-                context_options["user_agent"] = user_agent
-                logger.debug("User agent set in context")
+                logger.debug("Custom user agent set in context")
 
             context = await self._browser.new_context(**context_options)
             logger.debug("Browser context created successfully")

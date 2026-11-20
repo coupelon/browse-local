@@ -5,7 +5,7 @@ services:
     build: .
     container_name: browse-local-api
     ports:
-      - "8000:8000"
+      - "172.17.0.1:8000:8000"  # docker0 only: reachable from containers via host.docker.internal
     environment:
       - TIMEOUT_MIN=1000
       - TIMEOUT_MAX=120000
